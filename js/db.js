@@ -1,4 +1,4 @@
-const DB = (() => {
+window.DB = (() => {
     const SUPABASE_URL = 'https://xdzfepptulxsugsovjme.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhkemZlcHB0dWx4c3Vnc292am1lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4MTczMTUsImV4cCI6MjEwMjM5MzMxNX0.u0d20NryISK5OMl9lUI5MelJ_PgV1RLyq7oc-d580m0';
     let supabaseClient = null;

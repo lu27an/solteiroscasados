@@ -1,4 +1,4 @@
-const Dashboard = (function() {
+window.Dashboard = (function() {
     function init() {
         setInterval(() => {
             const target = new Date('2026-12-20T09:00:00-03:00');

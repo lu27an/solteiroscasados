@@ -1,4 +1,4 @@
-const PIX = (() => {
+window.PIX = (() => {
     function tlv(id, value) {
         const len = value.length.toString().padStart(2, '0');
         return id + len + value;

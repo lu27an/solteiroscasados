@@ -1,4 +1,4 @@
-const App = (function() {
+window.App = (function() {
     let state = {
         participantes: [],
         parcelas: [],

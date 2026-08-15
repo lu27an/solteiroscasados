@@ -1,4 +1,4 @@
-const Caixa = (function() {
+window.Caixa = (function() {
     function init() {
         const form = document.getElementById('caixa-form');
         if (form) {

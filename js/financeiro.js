@@ -1,4 +1,4 @@
-const Financeiro = (function() {
+window.Financeiro = (function() {
     let currentSearch = '';
     let currentFilter = 'todos';
 

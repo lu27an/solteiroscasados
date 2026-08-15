@@ -157,35 +157,61 @@
         </div>
 
         <!-- Tab Escalação -->
-        <div id="tab-escalacao" class="tab-content hidden anim-fade-in">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="bg-slate-900 border border-slate-800 rounded-xl flex flex-col shadow-sm">
-                    <div class="p-3 border-b border-slate-800 bg-slate-800/30 flex justify-between items-center">
-                        <h3 class="font-bold text-white flex items-center gap-2">⚪ Solteiros</h3>
-                        <span id="count-solteiros" class="text-xs bg-slate-700 text-slate-200 px-2 py-0.5 rounded-full">0</span>
-                    </div>
-                    <div id="escalacao-solteiros" class="p-3 space-y-2 flex-grow">
-                        <!-- JS filled -->
+        <div id="tab-escalacao" class="tab-content hidden anim-fade-in p-4 sm:p-6 lg:p-8">
+            <!-- Filters/Toggles -->
+            <div class="flex gap-4 mb-6">
+                <button id="btn-esc-solteiros" class="flex-1 bg-slate-800 text-white rounded-lg py-3 font-semibold border border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.2)] transition-all">⚪ Solteiros</button>
+                <button id="btn-esc-casados" class="flex-1 bg-slate-900 text-slate-400 rounded-lg py-3 font-semibold border border-slate-800 hover:bg-slate-800 transition-all">⚫ Casados</button>
+            </div>
+            <div class="flex justify-between items-center mb-4">
+                <p class="text-slate-400 text-sm">Arraste os jogadores do banco para o campo e monte sua tática ideal (Futebol Society 7).</p>
+                <button id="btn-limpar-escalacao" class="text-rose-400 hover:text-rose-300 text-sm font-medium transition-colors">🗑️ Limpar Campo</button>
+            </div>
+
+            <div class="flex flex-col lg:flex-row gap-8">
+                <!-- Pitch (Campo) -->
+                <div class="flex-1 max-w-2xl mx-auto w-full">
+                    <div class="soccer-pitch relative rounded-lg overflow-hidden border-[3px] border-emerald-950 shadow-2xl aspect-[3/4] sm:aspect-[4/5] bg-[#064e3b]">
+                        <!-- Linhas do campo -->
+                        <div class="pitch-line center-line"></div>
+                        <div class="pitch-line center-circle"></div>
+                        <div class="pitch-line penalty-area top"></div>
+                        <div class="pitch-line penalty-area bottom"></div>
+                        
+                        <!-- Slots Society 7 (1-2-3-1) -->
+                        <!-- Ataque -->
+                        <div class="player-slot absolute top-[10%] left-1/2 -translate-x-1/2" data-slot="ata-1"></div>
+                        <!-- Meio -->
+                        <div class="player-slot absolute top-[35%] left-[20%] -translate-x-1/2" data-slot="mei-1"></div>
+                        <div class="player-slot absolute top-[35%] left-1/2 -translate-x-1/2" data-slot="mei-2"></div>
+                        <div class="player-slot absolute top-[35%] left-[80%] -translate-x-1/2" data-slot="mei-3"></div>
+                        <!-- Zaga -->
+                        <div class="player-slot absolute top-[65%] left-[30%] -translate-x-1/2" data-slot="zag-1"></div>
+                        <div class="player-slot absolute top-[65%] left-[70%] -translate-x-1/2" data-slot="zag-2"></div>
+                        <!-- Goleiro -->
+                        <div class="player-slot absolute bottom-[5%] left-1/2 -translate-x-1/2" data-slot="gol-1"></div>
                     </div>
                 </div>
 
-                <div class="bg-slate-900 border border-slate-800 rounded-xl flex flex-col shadow-sm">
-                    <div class="p-3 border-b border-slate-800 bg-slate-800/30 flex justify-between items-center">
-                        <h3 class="font-bold text-white flex items-center gap-2">⚫ Casados</h3>
-                        <span id="count-casados" class="text-xs bg-slate-700 text-slate-200 px-2 py-0.5 rounded-full">0</span>
+                <!-- Banco / Elenco -->
+                <div class="lg:w-96 flex flex-col gap-6">
+                    <div class="bg-slate-900 rounded-2xl p-4 border border-slate-800 shadow-xl">
+                        <h3 class="text-white font-bold mb-4 flex justify-between items-center">
+                            Banco de Reservas 
+                            <span id="banco-count" class="bg-slate-800 text-slate-400 text-xs px-2 py-1 rounded-md">0</span>
+                        </h3>
+                        <div id="banco-list" class="flex flex-col gap-2 min-h-[300px] max-h-[500px] overflow-y-auto pr-2 scrollbar-thin">
+                            <!-- Player cards draggable -->
+                        </div>
                     </div>
-                    <div id="escalacao-casados" class="p-3 space-y-2 flex-grow">
-                        <!-- JS filled -->
-                    </div>
-                </div>
 
-                <div class="bg-slate-900 border border-slate-800 rounded-xl flex flex-col shadow-sm">
-                    <div class="p-3 border-b border-slate-800 bg-slate-800/30 flex justify-between items-center">
-                        <h3 class="font-bold text-white flex items-center gap-2">🍻 Resenha & Torcida</h3>
-                        <span id="count-resenha" class="text-xs bg-slate-700 text-slate-200 px-2 py-0.5 rounded-full">0</span>
-                    </div>
-                    <div id="escalacao-resenha" class="p-3 space-y-2 flex-grow">
-                        <!-- JS filled -->
+                    <div class="bg-slate-900/50 rounded-2xl p-4 border border-slate-800/50">
+                        <h3 class="text-slate-400 font-bold mb-4 flex justify-between items-center">
+                            🍻 Resenha & Torcida
+                            <span id="resenha-count" class="bg-slate-800 text-slate-500 text-xs px-2 py-1 rounded-md">0</span>
+                        </h3>
+                        <div id="resenha-list" class="flex flex-col gap-2 max-h-[200px] overflow-y-auto scrollbar-thin">
+                        </div>
                     </div>
                 </div>
             </div>

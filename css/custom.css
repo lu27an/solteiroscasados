@@ -200,3 +200,143 @@
 .animate-shake {
     animation: shake 0.4s ease-in-out;
 }
+
+/* 14. Cartola Lineup CSS */
+.soccer-pitch {
+    background-image: repeating-linear-gradient(0deg, transparent, transparent 10%, rgba(255,255,255,0.04) 10%, rgba(255,255,255,0.04) 20%);
+}
+.pitch-line {
+    position: absolute;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+.center-line {
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 0;
+}
+.center-circle {
+    top: 50%;
+    left: 50%;
+    width: 25%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+}
+.penalty-area {
+    left: 20%;
+    right: 20%;
+    height: 15%;
+}
+.penalty-area.top {
+    top: 0;
+    border-top: 0;
+}
+.penalty-area.bottom {
+    bottom: 0;
+    border-bottom: 0;
+}
+
+.player-slot {
+    width: 60px;
+    height: 60px;
+    border: 2px dashed rgba(255,255,255,0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.15);
+    transition: all 0.2s;
+    z-index: 10;
+}
+.player-slot.drag-over {
+    background: rgba(16, 185, 129, 0.5);
+    border-color: #34d399;
+    transform: translateX(-50%) scale(1.1);
+}
+.cartola-player {
+    cursor: grab;
+    user-select: none;
+    transition: transform 0.2s;
+}
+.cartola-player:hover {
+    transform: translateY(-2px);
+}
+.cartola-player:active {
+    cursor: grabbing;
+}
+.cartola-player.dragging {
+    opacity: 0.4;
+    transform: scale(0.95);
+}
+
+.pitch-player {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    animation: dropIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: grab;
+}
+@keyframes dropIn {
+    0% { transform: scale(0); }
+    100% { transform: scale(1); }
+}
+.pitch-player .shirt {
+    width: 44px;
+    height: 44px;
+    background: #f8fafc;
+    border-radius: 50%;
+    color: #0f172a;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    border: 2px solid #cbd5e1;
+    z-index: 2;
+}
+.pitch-player.team-casados .shirt {
+    background: #0f172a;
+    color: #f8fafc;
+    border-color: #334155;
+}
+.pitch-player .name {
+    position: absolute;
+    bottom: -15px;
+    background: rgba(0,0,0,0.8);
+    color: white;
+    font-size: 0.65rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+    text-shadow: 1px 1px 2px black;
+    font-weight: 600;
+    z-index: 3;
+}
+.remove-player {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ef4444;
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    font-size: 14px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 4;
+}
+.pitch-player:hover .remove-player {
+    opacity: 1;
+}

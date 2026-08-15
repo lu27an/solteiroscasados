@@ -1,4 +1,4 @@
-const Camisas = (function() {
+window.Camisas = (function() {
     function init() {
         const btnCsv = document.getElementById('btn-export-csv');
         if (btnCsv) {
