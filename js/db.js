@@ -1,6 +1,6 @@
 const DB = (() => {
-    const SUPABASE_URL = '';
-    const SUPABASE_ANON_KEY = '';
+    const SUPABASE_URL = 'https://xdzfepptulxsugsovjme.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhkemZlcHB0dWx4c3Vnc292am1lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4MTczMTUsImV4cCI6MjEwMjM5MzMxNX0.u0d20NryISK5OMl9lUI5MelJ_PgV1RLyq7oc-d580m0';
     let supabaseClient = null;
     let _isLocal = true;
 
@@ -8,7 +8,7 @@ const DB = (() => {
         pix_chave: '46413688807',
         pix_nome: 'LUAN AUGUSTO BARBOZA SIMAO',
         pix_cidade: 'GUARARAPES',
-        admin_pin: '2026'
+        admin_pin: '302712'
     };
 
     async function init() {
@@ -32,6 +32,12 @@ const DB = (() => {
             }
             if (!localStorage.getItem('sc2026_config')) {
                 setLocalObj('config', defaultConfig);
+            } else {
+                let conf = getLocalObj('config');
+                if (conf.admin_pin === '2026') {
+                    conf.admin_pin = '302712';
+                    setLocalObj('config', conf);
+                }
             }
         }
     }

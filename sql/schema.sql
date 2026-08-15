@@ -52,7 +52,7 @@ INSERT INTO configuracoes (chave, valor) VALUES
     ('pix_chave', '46413688807'),
     ('pix_nome', 'LUAN AUGUSTO BARBOZA SIMAO'),
     ('pix_cidade', 'GUARARAPES'),
-    ('admin_pin', '2026')
+    ('admin_pin', '302712')
 ON CONFLICT (chave) DO NOTHING;
 
 -- RLS policies
