@@ -49,7 +49,7 @@ window.App = (function() {
                 
                 document.querySelectorAll('.tab-content').forEach(tc => tc.classList.add('hidden'));
                 const tabId = target.dataset.tab;
-                const tabEl = document.getElementById(tabId);
+                const tabEl = document.getElementById('tab-' + tabId);
                 if (tabEl) tabEl.classList.remove('hidden');
             });
         });
