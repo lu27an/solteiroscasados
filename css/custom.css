@@ -1,0 +1,202 @@
+/* custom.css */
+
+/* 1. Scrollbar styling */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #0f172a; /* slate-900 */
+}
+::-webkit-scrollbar-thumb {
+    background: #334155; /* slate-700 */
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #475569; /* slate-600 */
+}
+
+/* 11. Scrollbar-hide utility for horizontal scrolls */
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* 2. Thermometer animation */
+@keyframes fillThermometer {
+    from { width: 0%; }
+}
+.thermometer-anim {
+    animation: fillThermometer 1s ease-out forwards;
+    box-shadow: 0 0 10px rgba(52, 211, 153, 0.4);
+}
+
+/* 3. Countdown pulse */
+@keyframes pulseScale {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+}
+.countdown-pulse {
+    animation: pulseScale 2s infinite ease-in-out;
+}
+
+/* 4. Tab transition */
+@keyframes fadeInSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.anim-fade-in {
+    animation: fadeInSlideUp 0.3s ease-out forwards;
+}
+
+/* 5. Toast animation classes */
+.toast-show {
+    opacity: 1 !important;
+    transform: translate(-50%, 0) !important;
+}
+
+/* 6. Table responsive */
+.table-responsive {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* 7. Modal entrance */
+@keyframes modalScaleUp {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+.modal-content {
+    animation: modalScaleUp 0.2s ease-out forwards;
+}
+
+/* 8. Card hover */
+.metric-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* 9. Status tags */
+.tag-pago {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+.tag-pendente {
+    background-color: rgba(245, 158, 11, 0.1);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+.tag-atraso {
+    background-color: rgba(244, 63, 94, 0.1);
+    color: #fb7185;
+    border: 1px solid rgba(244, 63, 94, 0.2);
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* 10. Player card styles */
+.player-card {
+    background: #1e293b; /* slate-800 */
+    border: 1px solid #334155; /* slate-700 */
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-left-width: 4px;
+}
+.player-card.pos-goleiro {
+    border-left-color: #10b981; /* emerald-500 */
+}
+.player-card.pos-linha {
+    border-left-color: #38bdf8; /* sky-400 */
+}
+.player-card.pos-nao-joga {
+    border-left-color: #64748b; /* slate-500 */
+}
+
+/* 12. FAB animation */
+@keyframes fabBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+.fab-anim {
+    animation: fabBounce 2s infinite ease-in-out;
+}
+.fab-anim:hover {
+    animation: none;
+}
+
+/* 13. Print styles */
+@media print {
+    body {
+        background: white;
+        color: black;
+    }
+    .dark body {
+        background: white;
+        color: black;
+    }
+    header, nav, #dashboard, .admin-only, #fab-add, .filter-btn, .modal-overlay {
+        display: none !important;
+    }
+    .tab-content {
+        display: block !important;
+        opacity: 1;
+    }
+    .bg-slate-900, .bg-slate-800 {
+        background: transparent !important;
+    }
+    * {
+        border-color: #ccc !important;
+        box-shadow: none !important;
+    }
+    .text-white, .text-slate-300, .text-slate-400 {
+        color: #000 !important;
+    }
+    .text-emerald-400 { color: #059669 !important; }
+    .text-amber-400 { color: #d97706 !important; }
+    .text-sky-400 { color: #0ea5e9 !important; }
+    .text-rose-400 { color: #e11d48 !important; }
+}
+
+/* Shake animation for incorrect PIN */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-6px); }
+    80% { transform: translateX(6px); }
+}
+.animate-shake {
+    animation: shake 0.4s ease-in-out;
+}

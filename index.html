@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solteiros e Casados 2026 — Gestão do Evento</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        slate: {
+                            900: '#0f172a',
+                            950: '#020617',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/custom.css">
+</head>
+<body class="bg-slate-950 text-slate-200 font-sans min-h-screen flex flex-col relative pb-20">
+
+    <!-- localStorage Warning Banner -->
+    <div id="localStorage-banner" class="hidden bg-amber-500/20 border-b border-amber-500/50 text-amber-400 text-sm py-2 px-4 text-center">
+        ⚠️ Atenção: Os dados estão sendo salvos apenas no seu dispositivo (Modo Offline).
+    </div>
+
+    <!-- Header -->
+    <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="text-center sm:text-left">
+                <h1 class="text-xl font-bold tracking-tight text-white">⚽ Solteiros & Casados <span class="text-emerald-400">2026</span></h1>
+                <p class="text-xs text-slate-400">20 de Dezembro de 2026 • Guararapes/SP</p>
+            </div>
+            
+            <div id="countdown" class="flex gap-2 text-sm font-medium bg-slate-950/50 px-3 py-1.5 rounded-lg border border-slate-800 countdown-pulse">
+                <!-- JS will fill -->
+            </div>
+            
+            <div class="flex gap-2 w-full sm:w-auto">
+                <button id="btn-cronograma" class="flex-1 sm:flex-none bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded-lg text-sm transition-colors flex items-center justify-center gap-2 border border-slate-700">
+                    📋 <span class="hidden sm:inline">Cronograma</span>
+                </button>
+                <button id="btn-admin-toggle" class="flex-1 sm:flex-none bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg text-sm transition-colors flex items-center justify-center gap-2 border border-slate-700">
+                    🔒 Admin
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Dashboard Section -->
+    <section id="dashboard" class="max-w-7xl mx-auto px-4 py-6 w-full space-y-4">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm metric-card">
+                <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Inscritos</p>
+                <p id="metric-inscritos" class="text-2xl font-bold text-white">0</p>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm metric-card">
+                <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Arrecadado</p>
+                <p id="metric-arrecadado" class="text-2xl font-bold text-emerald-400">R$ 0,00</p>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm metric-card">
+                <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Pendente</p>
+                <p id="metric-pendente" class="text-2xl font-bold text-amber-400">R$ 0,00</p>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm metric-card">
+                <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Saldo Caixa</p>
+                <p id="metric-saldo" class="text-2xl font-bold text-sky-400">R$ 0,00</p>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm metric-card">
+                <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Camisas</p>
+                <p id="metric-camisas" class="text-2xl font-bold text-white">0</p>
+            </div>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm">
+            <div class="flex justify-between items-end mb-2">
+                <h3 class="text-sm font-semibold text-white">Meta Coletiva</h3>
+                <span id="thermometer-values" class="text-xs text-slate-400 font-mono">R$ 0 / R$ 0</span>
+            </div>
+            <div class="relative h-4 bg-slate-800 rounded-full overflow-hidden">
+                <div id="thermometer-bar" class="absolute top-0 left-0 h-full bg-gradient-to-r from-emerald-600 to-emerald-400 thermometer-anim" style="width: 0%"></div>
+            </div>
+            <div class="flex justify-between items-start mt-2">
+                <span id="thermometer-percent" class="text-xs font-bold text-emerald-400">0%</span>
+                <span id="thermometer-discount" class="text-xs text-emerald-300 hidden px-2 py-0.5 bg-emerald-900/30 rounded-full">Desconto: R$ 0/pessoa</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tab Navigation -->
+    <nav id="tab-nav" class="sticky top-[116px] sm:top-[72px] z-30 bg-slate-950/90 backdrop-blur border-b border-slate-800 pt-2 mb-4">
+        <div class="max-w-7xl mx-auto px-4 flex overflow-x-auto scrollbar-hide gap-1">
+            <button class="tab-btn active px-4 py-2 text-sm font-medium border-b-2 border-emerald-500 text-emerald-400 whitespace-nowrap transition-colors" data-tab="financeiro">💰 Financeiro</button>
+            <button class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap transition-colors" data-tab="escalacao">⚽ Escalação</button>
+            <button class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap transition-colors" data-tab="camisas">👕 Camisas</button>
+            <button class="tab-btn admin-only hidden px-4 py-2 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap transition-colors" data-tab="caixa">🏦 Caixa</button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 w-full flex-grow pb-10">
+        
+        <!-- Tab Financeiro -->
+        <div id="tab-financeiro" class="tab-content block anim-fade-in">
+            <div class="flex flex-col sm:flex-row gap-3 mb-4">
+                <div class="relative flex-grow">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500">🔍</span>
+                    <input type="text" id="financeiro-search" placeholder="Buscar participante..." class="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
+                </div>
+            </div>
+            
+            <div id="financeiro-filters" class="flex overflow-x-auto scrollbar-hide gap-2 mb-4 pb-1">
+                <button class="filter-btn bg-slate-700 text-white px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap active-filter" data-filter="todos">Todos</button>
+                <button class="filter-btn bg-slate-800 text-slate-300 hover:bg-slate-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap border border-slate-700" data-filter="pagos">✓ Pagos</button>
+                <button class="filter-btn bg-slate-800 text-slate-300 hover:bg-slate-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap border border-slate-700" data-filter="atraso">Em Atraso</button>
+                <button class="filter-btn bg-slate-800 text-slate-300 hover:bg-slate-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap border border-slate-700" data-filter="sem-chopp">Sem Chopp</button>
+                <button class="filter-btn bg-slate-800 text-slate-300 hover:bg-slate-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap border border-slate-700" data-filter="criancas">Crianças</button>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
+                <div class="overflow-x-auto table-responsive">
+                    <table class="w-full text-left text-sm whitespace-nowrap">
+                        <thead class="bg-slate-800/50 text-slate-300 font-semibold border-b border-slate-700">
+                            <tr>
+                                <th class="px-4 py-3">Participante</th>
+                                <th class="px-4 py-3 text-center">Set/26</th>
+                                <th class="px-4 py-3 text-center">Out/26</th>
+                                <th class="px-4 py-3 text-center">Nov/26</th>
+                                <th class="px-4 py-3 text-center">Dez/26</th>
+                                <th class="px-4 py-3 text-right">Total</th>
+                                <th class="px-4 py-3 text-center admin-only hidden">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="financeiro-tbody" class="divide-y divide-slate-800/50">
+                            <!-- JS filled -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Escalação -->
+        <div id="tab-escalacao" class="tab-content hidden anim-fade-in">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-slate-900 border border-slate-800 rounded-xl flex flex-col shadow-sm">
+                    <div class="p-3 border-b border-slate-800 bg-slate-800/30 flex justify-between items-center">
+                        <h3 class="font-bold text-white flex items-center gap-2">⚪ Solteiros</h3>
+                        <span id="count-solteiros" class="text-xs bg-slate-700 text-slate-200 px-2 py-0.5 rounded-full">0</span>
+                    </div>
+                    <div id="escalacao-solteiros" class="p-3 space-y-2 flex-grow">
+                        <!-- JS filled -->
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-xl flex flex-col shadow-sm">
+                    <div class="p-3 border-b border-slate-800 bg-slate-800/30 flex justify-between items-center">
+                        <h3 class="font-bold text-white flex items-center gap-2">⚫ Casados</h3>
+                        <span id="count-casados" class="text-xs bg-slate-700 text-slate-200 px-2 py-0.5 rounded-full">0</span>
+                    </div>
+                    <div id="escalacao-casados" class="p-3 space-y-2 flex-grow">
+                        <!-- JS filled -->
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-xl flex flex-col shadow-sm">
+                    <div class="p-3 border-b border-slate-800 bg-slate-800/30 flex justify-between items-center">
+                        <h3 class="font-bold text-white flex items-center gap-2">🍻 Resenha & Torcida</h3>
+                        <span id="count-resenha" class="text-xs bg-slate-700 text-slate-200 px-2 py-0.5 rounded-full">0</span>
+                    </div>
+                    <div id="escalacao-resenha" class="p-3 space-y-2 flex-grow">
+                        <!-- JS filled -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Camisas -->
+        <div id="tab-camisas" class="tab-content hidden anim-fade-in">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
+                <div id="camisas-totals" class="flex flex-wrap gap-2">
+                    <!-- JS filled -->
+                </div>
+                <div class="flex gap-2 w-full sm:w-auto admin-only hidden">
+                    <button id="btn-export-csv" class="flex-1 sm:flex-none bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded-lg text-sm border border-slate-700 transition-colors">📥 CSV</button>
+                    <button id="btn-export-whatsapp" class="flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-sm transition-colors">📱 WhatsApp</button>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
+                <div class="overflow-x-auto table-responsive">
+                    <table class="w-full text-left text-sm whitespace-nowrap">
+                        <thead class="bg-slate-800/50 text-slate-300 font-semibold border-b border-slate-700">
+                            <tr>
+                                <th class="px-4 py-3">Nome</th>
+                                <th class="px-4 py-3">Perfil</th>
+                                <th class="px-4 py-3 text-center">Time</th>
+                                <th class="px-4 py-3">Modelo</th>
+                                <th class="px-4 py-3 text-center">Tamanho</th>
+                                <th class="px-4 py-3 text-center">Nº</th>
+                                <th class="px-4 py-3">Nome Costas</th>
+                            </tr>
+                        </thead>
+                        <tbody id="camisas-tbody" class="divide-y divide-slate-800/50">
+                            <!-- JS filled -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Caixa -->
+        <div id="tab-caixa" class="tab-content hidden anim-fade-in admin-only">
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-slate-900 border border-emerald-900/50 rounded-xl p-4 shadow-sm relative overflow-hidden">
+                    <div class="absolute right-0 top-0 w-16 h-16 bg-emerald-500/10 rounded-bl-full"></div>
+                    <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Entradas</p>
+                    <p id="caixa-entradas" class="text-2xl font-bold text-emerald-400">R$ 0,00</p>
+                </div>
+                <div class="bg-slate-900 border border-rose-900/50 rounded-xl p-4 shadow-sm relative overflow-hidden">
+                    <div class="absolute right-0 top-0 w-16 h-16 bg-rose-500/10 rounded-bl-full"></div>
+                    <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Saídas</p>
+                    <p id="caixa-saidas" class="text-2xl font-bold text-rose-400">R$ 0,00</p>
+                </div>
+                <div class="bg-slate-900 border border-sky-900/50 rounded-xl p-4 shadow-sm relative overflow-hidden">
+                    <div class="absolute right-0 top-0 w-16 h-16 bg-sky-500/10 rounded-bl-full"></div>
+                    <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Saldo</p>
+                    <p id="caixa-saldo" class="text-2xl font-bold text-sky-400">R$ 0,00</p>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 mb-6 shadow-sm">
+                <h3 class="font-semibold text-white mb-3">Registrar Despesa</h3>
+                <form id="caixa-form" class="flex flex-col sm:flex-row gap-3">
+                    <input type="text" id="despesa-descricao" required placeholder="Descrição..." class="flex-grow bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none">
+                    <select id="despesa-categoria" class="sm:w-40 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none">
+                        <option value="Salão">Salão</option>
+                        <option value="Pagode">Pagode</option>
+                        <option value="Chopp">Chopp</option>
+                        <option value="Açougue">Açougue</option>
+                        <option value="Camisas">Camisas</option>
+                        <option value="Carvão/Gelo">Carvão/Gelo</option>
+                        <option value="Outros" selected>Outros</option>
+                    </select>
+                    <input type="number" id="despesa-valor" required step="0.01" min="0.01" placeholder="R$ 0,00" class="sm:w-32 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none">
+                    <button type="submit" class="bg-rose-600 hover:bg-rose-500 text-white font-medium py-2 px-4 rounded-lg text-sm transition-colors whitespace-nowrap">Add Despesa</button>
+                </form>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
+                <div class="overflow-x-auto table-responsive">
+                    <table class="w-full text-left text-sm whitespace-nowrap">
+                        <thead class="bg-slate-800/50 text-slate-300 font-semibold border-b border-slate-700">
+                            <tr>
+                                <th class="px-4 py-3">Despesa</th>
+                                <th class="px-4 py-3">Categoria</th>
+                                <th class="px-4 py-3 text-right">Valor</th>
+                                <th class="px-4 py-3 text-center">Status</th>
+                                <th class="px-4 py-3 text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="despesas-tbody" class="divide-y divide-slate-800/50">
+                            <!-- JS filled -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- FAB -->
+    <button id="fab-add" class="admin-only hidden fixed bottom-6 right-6 w-14 h-14 bg-emerald-500 hover:bg-emerald-400 text-white rounded-full shadow-lg shadow-emerald-900/50 flex items-center justify-center text-3xl pb-1 z-40 fab-anim transition-transform hover:scale-110">
+        +
+    </button>
+
+    <!-- Modals -->
+    
+    <!-- Cronograma -->
+    <div id="modal-cronograma" class="modal-overlay hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-sm shadow-2xl modal-content">
+            <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+                <h2 class="font-bold text-white text-lg">📋 Cronograma do Dia</h2>
+                <button class="modal-close text-slate-400 hover:text-white transition-colors p-1">✕</button>
+            </div>
+            <div class="p-5 space-y-4">
+                <div class="flex items-start gap-4 p-3 bg-slate-800/50 rounded-lg">
+                    <div class="bg-slate-800 px-3 py-1.5 rounded text-sm font-mono text-emerald-400">09:00</div>
+                    <div>
+                        <p class="font-medium text-white">Aquecimento 🏃</p>
+                        <p class="text-xs text-slate-400">Entrega de camisas e preparação</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4 p-3 bg-slate-800/50 rounded-lg border border-slate-700">
+                    <div class="bg-slate-800 px-3 py-1.5 rounded text-sm font-mono text-emerald-400">10:00</div>
+                    <div>
+                        <p class="font-medium text-white">Jogo ⚽</p>
+                        <p class="text-xs text-slate-400">Solteiros x Casados (2 tempos de 40m)</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4 p-3 bg-slate-800/50 rounded-lg">
+                    <div class="bg-slate-800 px-3 py-1.5 rounded text-sm font-mono text-emerald-400">11:30</div>
+                    <div>
+                        <p class="font-medium text-white">Chopp & Churrasco 🍻</p>
+                        <p class="text-xs text-slate-400">Início da resenha e alimentação</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4 p-3 bg-slate-800/50 rounded-lg">
+                    <div class="bg-slate-800 px-3 py-1.5 rounded text-sm font-mono text-emerald-400">14:00</div>
+                    <div>
+                        <p class="font-medium text-white">Pagode 🎵</p>
+                        <p class="text-xs text-slate-400">Música ao vivo e confraternização</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin PIN -->
+    <div id="modal-admin" class="modal-overlay hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-sm shadow-2xl modal-content">
+            <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+                <h2 class="font-bold text-white text-lg">🔐 Modo Organizador</h2>
+                <button class="modal-close text-slate-400 hover:text-white transition-colors p-1">✕</button>
+            </div>
+            <div class="p-6 space-y-4 text-center">
+                <p class="text-sm text-slate-400">Digite o PIN para acessar recursos administrativos.</p>
+                <input type="password" id="admin-pin-input" maxlength="4" class="w-32 mx-auto bg-slate-950 border border-slate-700 rounded-lg py-3 text-center text-2xl font-mono tracking-widest text-white focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 placeholder-slate-700" placeholder="••••">
+                <p id="admin-pin-error" class="hidden text-rose-400 text-sm font-medium">PIN Incorreto</p>
+                <button id="btn-admin-login" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2.5 rounded-lg transition-colors mt-2">Acessar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cadastro -->
+    <div id="modal-cadastro" class="modal-overlay hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg shadow-2xl modal-content my-auto">
+            <div class="p-4 border-b border-slate-800 flex justify-between items-center sticky top-0 bg-slate-900/95 backdrop-blur z-10 rounded-t-2xl">
+                <h2 id="modal-cadastro-title" class="font-bold text-white text-lg">Novo Participante</h2>
+                <button type="button" class="modal-close text-slate-400 hover:text-white transition-colors p-1">✕</button>
+            </div>
+            <form id="form-cadastro" class="p-5 space-y-4">
+                <input type="hidden" id="form-id">
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Nome Completo *</label>
+                        <input type="text" id="form-nome" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">WhatsApp</label>
+                        <input type="tel" id="form-telefone" placeholder="(18) 99999-9999" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Categoria *</label>
+                    <select id="form-categoria" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none">
+                        <option value="Jogador Solteiro">Jogador Solteiro</option>
+                        <option value="Jogador Casado">Jogador Casado</option>
+                        <option value="Resenha">Resenha (Sem jogar)</option>
+                        <option value="Acompanhante">Acompanhante</option>
+                    </select>
+                </div>
+
+                <div id="form-responsavel-group" class="hidden">
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Responsável Financeiro</label>
+                    <select id="form-responsavel" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none">
+                        <!-- JS filled -->
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Tipo de Consumo *</label>
+                    <select id="form-consumo" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none">
+                        <option value="Completo">Completo (Com Chopp) - R$ 110</option>
+                        <option value="Sem Chopp">Sem Chopp - R$ 80</option>
+                        <option value="Crianca Meia">Criança (7 a 14 anos) - R$ 40</option>
+                    </select>
+                </div>
+
+                <div id="form-posicao-group">
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Posição em Campo</label>
+                    <select id="form-posicao" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none">
+                        <option value="Linha">Linha</option>
+                        <option value="Goleiro">Goleiro</option>
+                        <option value="Nao Joga">Não Joga</option>
+                    </select>
+                </div>
+
+                <div class="border-t border-slate-800 pt-4 mt-2">
+                    <h3 class="text-sm font-semibold text-white mb-3">Informações da Camisa</h3>
+                    <div class="grid grid-cols-2 gap-4 mb-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Modelo</label>
+                            <select id="form-modelo" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none">
+                                <option value="Tradicional">Tradicional</option>
+                                <option value="Baby Look">Baby Look</option>
+                                <option value="Infantil">Infantil</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Tamanho</label>
+                            <select id="form-tamanho" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none">
+                                <option value="P">P</option>
+                                <option value="M">M</option>
+                                <option value="G">G</option>
+                                <option value="GG">GG</option>
+                                <option value="XG">XG</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="col-span-1">
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Número</label>
+                            <input type="number" id="form-numero" min="1" max="99" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none">
+                            <p id="form-numero-error" class="text-[10px] text-rose-400 mt-1 hidden">Nº já em uso</p>
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Nome nas Costas</label>
+                            <input type="text" id="form-nome-camisa" maxlength="15" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white uppercase focus:border-emerald-500 focus:outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 pt-4 border-t border-slate-800 sticky bottom-0 bg-slate-900 pb-2">
+                    <button type="button" class="modal-close flex-1 py-2 rounded-lg font-medium text-slate-300 hover:bg-slate-800 border border-slate-700 transition-colors">Cancelar</button>
+                    <button type="submit" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-lg font-medium transition-colors">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- PIX -->
+    <div id="modal-pix" class="modal-overlay hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-sm shadow-2xl modal-content">
+            <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+                <h2 class="font-bold text-white text-lg flex items-center gap-2">💠 Pagamento via PIX</h2>
+                <button class="modal-close text-slate-400 hover:text-white transition-colors p-1">✕</button>
+            </div>
+            <div class="p-6 text-center">
+                <p id="pix-nome-pessoa" class="text-sm font-medium text-slate-300 mb-1">Participante</p>
+                <p id="pix-valor" class="text-3xl font-bold text-emerald-400 mb-6">R$ 0,00</p>
+                
+                <div class="bg-white p-3 rounded-xl inline-block mb-6 shadow-sm">
+                    <div id="pix-qrcode" class="w-48 h-48"></div>
+                </div>
+
+                <div class="text-left mb-2">
+                    <label class="text-xs font-medium text-slate-400 ml-1">PIX Copia e Cola</label>
+                    <div class="flex gap-2 mt-1">
+                        <input type="text" id="pix-copiacola" readonly class="flex-grow bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono text-slate-300 focus:outline-none">
+                        <button id="btn-copiar-pix" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors border border-slate-700 whitespace-nowrap">
+                            Copiar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm -->
+    <div id="modal-confirm" class="modal-overlay hidden fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-xs shadow-2xl modal-content p-6 text-center">
+            <div class="w-12 h-12 rounded-full bg-rose-500/20 text-rose-500 flex items-center justify-center text-xl mx-auto mb-4">
+                ⚠️
+            </div>
+            <h2 class="font-bold text-white text-lg mb-2">Confirmar Ação</h2>
+            <p id="confirm-message" class="text-sm text-slate-400 mb-6">Tem certeza que deseja excluir este registro?</p>
+            <div class="flex gap-3">
+                <button type="button" class="modal-close flex-1 py-2 rounded-lg font-medium text-slate-300 hover:bg-slate-800 border border-slate-700 transition-colors">Cancelar</button>
+                <button type="button" id="btn-confirm-yes" class="flex-1 bg-rose-600 hover:bg-rose-500 text-white py-2 rounded-lg font-medium transition-colors">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-[70] bg-slate-800 border border-slate-700 text-white px-4 py-3 rounded-xl shadow-xl flex items-center gap-3 transition-all duration-300 opacity-0 translate-y-4 pointer-events-none">
+        <span class="text-emerald-400">✓</span>
+        <span id="toast-message" class="text-sm font-medium">Ação realizada com sucesso!</span>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/db.js"></script>
+    <script src="js/pix.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/financeiro.js"></script>
+    <script src="js/escalacao.js"></script>
+    <script src="js/camisas.js"></script>
+    <script src="js/caixa.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
