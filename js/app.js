@@ -17,6 +17,7 @@ window.App = (function() {
         Escalacao.init();
         Camisas.init();
         Caixa.init();
+        if (window.Inscricao) Inscricao.init();
 
         setupEvents();
         await refreshAll();
@@ -32,6 +33,7 @@ window.App = (function() {
         Escalacao.render(state);
         Camisas.render(state);
         Caixa.render(state);
+        if (window.Inscricao) Inscricao.render(state);
         
         updateAdminVisibility();
     }
@@ -169,7 +171,7 @@ window.App = (function() {
                 if (!tamSelect) return;
                 tamSelect.innerHTML = '';
                 let options = [];
-                if (val === 'Tradicional') options = ['P', 'M', 'G', 'GG', 'XG'];
+                if (val === 'Jogador' || val === 'Tradicional') options = ['PP', 'P', 'M', 'G', 'GG', 'XG'];
                 else if (val === 'Baby Look') options = ['BL-P', 'BL-M', 'BL-G', 'BL-GG'];
                 else if (val === 'Infantil') options = ['2', '4', '6', '8', '10', '12', '14', '16'];
                 options.forEach(opt => tamSelect.innerHTML += `<option value="${opt}">${opt}</option>`);
@@ -207,7 +209,7 @@ window.App = (function() {
                 const num = document.getElementById('form-numero').value;
                 const cat = document.getElementById('form-categoria').value;
                 const id = document.getElementById('form-id').value;
-                if (cat === 'Jogador Solteiro' || cat === 'Jogador Casado') {
+                if (num && (cat === 'Jogador Solteiro' || cat === 'Jogador Casado')) {
                     const dupe = state.participantes.find(p => p.num_camisa == num && p.categoria === cat && p.id != id);
                     if (dupe) {
                         const err = document.getElementById('form-numero-error');
@@ -232,7 +234,7 @@ window.App = (function() {
                     tam_camisa: document.getElementById('form-tamanho').value,
                     num_camisa: document.getElementById('form-numero').value ? parseInt(document.getElementById('form-numero').value) : null,
                     nome_camisa: document.getElementById('form-nome-camisa').value.toUpperCase(),
-                    responsavel_id: document.getElementById('form-responsavel').value ? parseInt(document.getElementById('form-responsavel').value) : null,
+                    responsavel_id: cat === 'Acompanhante' && document.getElementById('form-responsavel').value ? parseInt(document.getElementById('form-responsavel').value) : null,
                     valor_total: valor
                 };
 
@@ -270,18 +272,6 @@ window.App = (function() {
             });
         }
 
-        const solteirosCont = document.getElementById('escalacao-solteiros');
-        const casadosCont = document.getElementById('escalacao-casados');
-        const resenhaCont = document.getElementById('escalacao-resenha');
-        [solteirosCont, casadosCont, resenhaCont].forEach(cont => {
-            if (cont) {
-                cont.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('btn-edit-player')) {
-                        editParticipante(e.target.dataset.id);
-                    }
-                });
-            }
-        });
     }
 
     function editParticipante(id) {
@@ -290,6 +280,7 @@ window.App = (function() {
         
         document.getElementById('form-id').value = p.id;
         document.getElementById('form-nome').value = p.nome;
+        document.getElementById('form-telefone').value = p.telefone || '';
         document.getElementById('form-categoria').value = p.categoria;
         document.getElementById('form-categoria').dispatchEvent(new Event('change'));
         if (p.responsavel_id) document.getElementById('form-responsavel').value = p.responsavel_id;
@@ -380,9 +371,7 @@ window.App = (function() {
         btnYes.parentNode.replaceChild(newBtnYes, btnYes);
         
         newBtnYes.addEventListener('click', async () => {
-            const p_parcelas = state.parcelas.filter(x => x.participante_id == id);
-            for (let parc of p_parcelas) await DB.parcelas.delete(parc.id);
-            await DB.participantes.delete(id);
+            await DB.participantes.delete(parseInt(id));
             closeModal('modal-confirm');
             await refreshAll();
             showToast('Participante excluído!');
@@ -434,11 +423,11 @@ window.App = (function() {
         const toast = document.getElementById('toast');
         if (!toast) return;
         document.getElementById('toast-message').textContent = message;
-        toast.classList.remove('translate-y-10', 'opacity-0');
+        toast.classList.remove('translate-y-4', 'opacity-0');
         toast.classList.add('translate-y-0', 'opacity-100');
         setTimeout(() => {
             toast.classList.remove('translate-y-0', 'opacity-100');
-            toast.classList.add('translate-y-10', 'opacity-0');
+            toast.classList.add('translate-y-4', 'opacity-0');
         }, 3000);
     }
 

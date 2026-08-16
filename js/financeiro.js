@@ -58,7 +58,7 @@ window.Financeiro = (function() {
                 return p_parcelas.length === 4 && p_parcelas.every(x => x.pago);
             }
             if (currentFilter === 'atraso') {
-                return p_parcelas.some(x => !x.pago && new Date(x.data_vencimento) < today);
+                return p_parcelas.some(x => !x.pago && new Date(x.data_vencimento + 'T23:59:59') < today);
             }
             if (currentFilter === 'sem-chopp') {
                 return p.tipo_consumo === 'Sem Chopp';
@@ -107,7 +107,7 @@ window.Financeiro = (function() {
                 }
 
                 let tagHtml = '';
-                const pDate = new Date(parc.data_vencimento);
+                const pDate = new Date(parc.data_vencimento + 'T23:59:59');
                 const classBase = state.isAdmin ? 'parcela-tag cursor-pointer' : 'parcela-tag';
                 
                 let valorComDesconto = parc.valor;

@@ -100,7 +100,7 @@ window.DB = (() => {
                 return updated;
             }
             const list = getLocal('participantes');
-            const index = list.findIndex(p => p.id === id);
+            const index = list.findIndex(p => p.id == id);
             if (index !== -1) {
                 list[index] = { ...list[index], ...updates };
                 setLocal('participantes', list);
@@ -119,10 +119,10 @@ window.DB = (() => {
                 return;
             }
             let list = getLocal('participantes');
-            list = list.filter(p => p.id !== id);
+            list = list.filter(p => p.id != id);
             
             list = list.map(p => {
-                if (p.responsavel_id === id) {
+                if (p.responsavel_id == id) {
                     return { ...p, responsavel_id: null };
                 }
                 return p;
@@ -130,7 +130,7 @@ window.DB = (() => {
             setLocal('participantes', list);
             
             let parcelasList = getLocal('parcelas');
-            parcelasList = parcelasList.filter(p => p.participante_id !== id);
+            parcelasList = parcelasList.filter(p => p.participante_id != id);
             setLocal('parcelas', parcelasList);
         }
     };
@@ -151,7 +151,7 @@ window.DB = (() => {
                 return data;
             }
             const list = getLocal('parcelas');
-            return list.filter(p => p.participante_id === participanteId).sort((a, b) => a.numero_parcela - b.numero_parcela);
+            return list.filter(p => p.participante_id == participanteId).sort((a, b) => a.numero_parcela - b.numero_parcela);
         },
         async create(data) {
             if (!_isLocal) {
@@ -172,7 +172,7 @@ window.DB = (() => {
                 return updated;
             }
             const list = getLocal('parcelas');
-            const index = list.findIndex(p => p.id === id);
+            const index = list.findIndex(p => p.id == id);
             if (index !== -1) {
                 list[index] = { ...list[index], ...updates };
                 setLocal('parcelas', list);
@@ -217,7 +217,17 @@ window.DB = (() => {
                 return;
             }
             let list = getLocal('parcelas');
-            list = list.filter(p => p.participante_id !== participanteId);
+            list = list.filter(p => p.participante_id != participanteId);
+            setLocal('parcelas', list);
+        },
+        async delete(id) {
+            if (!_isLocal) {
+                const { error } = await supabaseClient.from('parcelas').delete().eq('id', id);
+                if (error) throw error;
+                return;
+            }
+            let list = getLocal('parcelas');
+            list = list.filter(p => p.id != id);
             setLocal('parcelas', list);
         }
     };
@@ -251,7 +261,7 @@ window.DB = (() => {
                 return updated;
             }
             const list = getLocal('despesas');
-            const index = list.findIndex(d => d.id === id);
+            const index = list.findIndex(d => d.id == id);
             if (index !== -1) {
                 list[index] = { ...list[index], ...updates };
                 setLocal('despesas', list);
@@ -266,7 +276,7 @@ window.DB = (() => {
                 return;
             }
             let list = getLocal('despesas');
-            list = list.filter(d => d.id !== id);
+            list = list.filter(d => d.id != id);
             setLocal('despesas', list);
         }
     };

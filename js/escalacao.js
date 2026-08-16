@@ -34,6 +34,7 @@ window.Escalacao = (function() {
             });
         }
 
+        loadLineup();
         setupDragAndDrop();
     }
 
@@ -128,16 +129,13 @@ window.Escalacao = (function() {
         if (!state) return;
         appState = state;
         
-        // Initial load
-        if (Object.keys(currentLineup).length === 0 && !localStorage.getItem(`sc2026_cartola_${currentTeam}`)) {
-            loadLineup();
-        }
+        loadLineup();
 
         const teamCategory = currentTeam === 'solteiros' ? 'Jogador Solteiro' : 'Jogador Casado';
         
         // Filter players
         const teamPlayers = state.participantes.filter(p => p.categoria === teamCategory);
-        const resenhaPlayers = state.participantes.filter(p => p.categoria === 'Resenha' || p.categoria === 'Acompanhante' || p.posicao_campo === 'Nao Joga');
+        const resenhaPlayers = state.participantes.filter(p => (p.categoria === 'Resenha' || p.categoria === 'Acompanhante') || (p.posicao_campo === 'Nao Joga' && p.categoria !== 'Jogador Solteiro' && p.categoria !== 'Jogador Casado'));
 
         // Clean slots
         document.querySelectorAll('.player-slot').forEach(slot => {

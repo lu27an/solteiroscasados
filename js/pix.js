@@ -67,13 +67,9 @@ window.PIX = (() => {
         if (!el) return;
         el.innerHTML = '';
         if (window.QRCode) {
-            new QRCode(el, {
-                text: payload,
-                width: 200,
-                height: 200,
-                colorDark: '#10b981',
-                colorLight: '#00000000'
-            });
+            const canvas = document.createElement('canvas');
+            QRCode.toCanvas(canvas, payload, { width: 200, margin: 1, color: { dark: '#10b981', light: '#ffffff' } });
+            el.appendChild(canvas);
         } else {
             console.error("QRCode library not loaded");
         }
