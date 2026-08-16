@@ -1,15 +1,15 @@
 -- =============================================
--- SQL Script para rodar no Supabase -> SQL Editor
--- Copie TUDO e cole no SQL Editor do Supabase
+-- SQL DEFINITIVO PARA O SUPABASE (SQL EDITOR)
+-- Copie TUDO e clique em "RUN" no Supabase
 -- =============================================
 
 -- 1. Tabela de Configurações
 CREATE TABLE IF NOT EXISTS public.configuracoes (
     id SERIAL PRIMARY KEY,
-    pix_chave TEXT NOT NULL,
-    pix_nome TEXT NOT NULL,
-    pix_cidade TEXT NOT NULL,
-    admin_pin TEXT NOT NULL
+    pix_chave TEXT NOT NULL DEFAULT '46413688807',
+    pix_nome TEXT NOT NULL DEFAULT 'LUAN AUGUSTO BARBOZA SIMAO',
+    pix_cidade TEXT NOT NULL DEFAULT 'GUARARAPES',
+    admin_pin TEXT NOT NULL DEFAULT '302712'
 );
 INSERT INTO public.configuracoes (id, pix_chave, pix_nome, pix_cidade, admin_pin)
 VALUES (1, '46413688807', 'LUAN AUGUSTO BARBOZA SIMAO', 'GUARARAPES', '302712')
@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS public.escalacao (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 6. Tabela de Inscrições / Bolão (Sincronização em Tempo Real)
+-- 6. Tabela de Inscrições / Bolão
 CREATE TABLE IF NOT EXISTS public.inscricoes (
     id SERIAL PRIMARY KEY,
     nome TEXT NOT NULL,
@@ -77,34 +77,41 @@ CREATE TABLE IF NOT EXISTS public.inscricoes (
     bolao_solteiros INTEGER DEFAULT 0,
     bolao_casados INTEGER DEFAULT 0,
     bolao_mensagem TEXT,
-    status TEXT DEFAULT 'pendente', -- pendente, aprovado, rejeitado
+    status TEXT DEFAULT 'pendente',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- =============================================
--- CRÍTICO: Desabilitar Row Level Security (RLS)
--- Isso é necessário para o app funcionar sem autenticação
+-- POLÍTICAS DE ACESSO TOTAL (RLS PERMISSIVO)
+-- Permite leitura e escrita pública sem bloqueios
 -- =============================================
-ALTER TABLE public.configuracoes DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.participantes DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.parcelas DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.despesas DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.escalacao DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.inscricoes DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.configuracoes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.participantes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.parcelas ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.despesas ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.escalacao ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.inscricoes ENABLE ROW LEVEL SECURITY;
 
--- Remover qualquer política de RLS existente que possa bloquear
-DROP POLICY IF EXISTS "Enable all for anon" ON public.participantes;
-DROP POLICY IF EXISTS "Enable all for anon" ON public.parcelas;
-DROP POLICY IF EXISTS "Enable all for anon" ON public.despesas;
-DROP POLICY IF EXISTS "Enable all for anon" ON public.configuracoes;
-DROP POLICY IF EXISTS "Enable all for anon" ON public.escalacao;
-DROP POLICY IF EXISTS "Enable all for anon" ON public.inscricoes;
+DROP POLICY IF EXISTS "Public access configuracoes" ON public.configuracoes;
+CREATE POLICY "Public access configuracoes" ON public.configuracoes FOR ALL TO public USING (true) WITH CHECK (true);
 
--- Garantir acesso público (anon) a todas as tabelas
-GRANT ALL ON public.configuracoes TO anon;
-GRANT ALL ON public.participantes TO anon;
-GRANT ALL ON public.parcelas TO anon;
-GRANT ALL ON public.despesas TO anon;
-GRANT ALL ON public.escalacao TO anon;
-GRANT ALL ON public.inscricoes TO anon;
-GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO anon;
+DROP POLICY IF EXISTS "Public access participantes" ON public.participantes;
+CREATE POLICY "Public access participantes" ON public.participantes FOR ALL TO public USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Public access parcelas" ON public.parcelas;
+CREATE POLICY "Public access parcelas" ON public.parcelas FOR ALL TO public USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Public access despesas" ON public.despesas;
+CREATE POLICY "Public access despesas" ON public.despesas FOR ALL TO public USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Public access escalacao" ON public.escalacao;
+CREATE POLICY "Public access escalacao" ON public.escalacao FOR ALL TO public USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Public access inscricoes" ON public.inscricoes;
+CREATE POLICY "Public access inscricoes" ON public.inscricoes FOR ALL TO public USING (true) WITH CHECK (true);
+
+-- Permissões completas para o usuário anônimo
+GRANT USAGE ON SCHEMA public TO anon, authenticated;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated;
+GRANT ALL ON ALL ROUTINES IN SCHEMA public TO anon, authenticated;
