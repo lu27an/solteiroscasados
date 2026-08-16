@@ -30,14 +30,18 @@ window.DB = (() => {
             if (banner) {
                 banner.classList.remove('hidden');
             }
-            if (!localStorage.getItem('sc2026_config')) {
-                setLocalObj('config', defaultConfig);
-            } else {
-                let conf = getLocalObj('config');
-                if (conf.admin_pin === '2026') {
-                    conf.admin_pin = '302712';
-                    setLocalObj('config', conf);
+            try {
+                if (!localStorage.getItem('sc2026_config')) {
+                    setLocalObj('config', defaultConfig);
+                } else {
+                    let conf = getLocalObj('config');
+                    if (conf.admin_pin === '2026') {
+                        conf.admin_pin = '302712';
+                        setLocalObj('config', conf);
+                    }
                 }
+            } catch (e) {
+                console.warn('localStorage is disabled or restricted:', e);
             }
         }
     }
@@ -47,21 +51,29 @@ window.DB = (() => {
     }
 
     function getLocal(key) {
-        const item = localStorage.getItem(`sc2026_${key}`);
-        return item ? JSON.parse(item) : [];
+        try {
+            const item = localStorage.getItem(`sc2026_${key}`);
+            return item ? JSON.parse(item) : [];
+        } catch (e) { return []; }
     }
 
     function setLocal(key, data) {
-        localStorage.setItem(`sc2026_${key}`, JSON.stringify(data));
+        try {
+            localStorage.setItem(`sc2026_${key}`, JSON.stringify(data));
+        } catch (e) {}
     }
     
     function getLocalObj(key) {
-        const item = localStorage.getItem(`sc2026_${key}`);
-        return item ? JSON.parse(item) : {};
+        try {
+            const item = localStorage.getItem(`sc2026_${key}`);
+            return item ? JSON.parse(item) : {};
+        } catch (e) { return {}; }
     }
 
     function setLocalObj(key, data) {
-        localStorage.setItem(`sc2026_${key}`, JSON.stringify(data));
+        try {
+            localStorage.setItem(`sc2026_${key}`, JSON.stringify(data));
+        } catch (e) {}
     }
 
     function generateId(table) {

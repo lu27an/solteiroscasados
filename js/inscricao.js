@@ -2,12 +2,16 @@ window.Inscricao = (function() {
     const STORAGE_KEY = 'sc2026_inscricoes';
 
     function getInscricoes() {
-        const data = localStorage.getItem(STORAGE_KEY);
-        return data ? JSON.parse(data) : [];
+        try {
+            const data = localStorage.getItem(STORAGE_KEY);
+            return data ? JSON.parse(data) : [];
+        } catch(e) { return []; }
     }
 
     function saveInscricoes(list) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+        } catch(e) {}
     }
 
     function init() {
