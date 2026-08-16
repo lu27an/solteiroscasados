@@ -7,7 +7,12 @@ window.Dashboard = (function() {
         const countdownEls = [document.getElementById('countdown'), document.getElementById('countdown-desktop')];
         const content = diff <= 0 
             ? '<span class="text-xl font-bold text-emerald-400">Evento realizado! 🎉</span>'
-            : `
+            : (() => {
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                const mins = Math.floor((diff / 1000 / 60) % 60);
+                const secs = Math.floor((diff / 1000) % 60);
+                return `
                 <div class="flex justify-center items-center gap-2 sm:gap-4">
                     <div class="text-center">
                         <span class="text-base sm:text-xl font-bold text-emerald-400">${days}</span>
@@ -29,7 +34,7 @@ window.Dashboard = (function() {
                         <span class="text-[9px] sm:text-xs text-slate-500 block">seg</span>
                     </div>
                 </div>
-            `;
+            `})();
 
         countdownEls.forEach(el => {
             if (el) el.innerHTML = content;
