@@ -121,7 +121,7 @@ window.App = (function() {
         if (btnAdminLogin) {
             btnAdminLogin.addEventListener('click', () => {
                 const pin = document.getElementById('admin-pin-input').value;
-                if (pin === state.config.admin_pin || pin === '302712') {
+                if (pin === state.config.admin_pin || pin === '125599') {
                     state.isAdmin = true;
                     closeModal('modal-admin');
                     document.getElementById('admin-pin-input').value = '';
@@ -275,15 +275,9 @@ window.App = (function() {
                 };
 
                 if (id) {
-                    const oldP = state.participantes.find(p => p.id == id);
                     await DB.participantes.update(parseInt(id), data);
-                    if (oldP && oldP.valor_total !== valor) {
-                        await DB.parcelas.deleteByParticipante(parseInt(id));
-                        await DB.parcelas.createForParticipante(parseInt(id), valor);
-                    }
                 } else {
-                    const created = await DB.participantes.create(data);
-                    await DB.parcelas.createForParticipante(created.id, valor);
+                    await DB.participantes.create(data);
                 }
 
                 closeModal('modal-cadastro');
@@ -300,14 +294,49 @@ window.App = (function() {
                 if (e.target.classList.contains('btn-whatsapp')) sendWhatsApp(e.target.dataset.id);
                 if (e.target.classList.contains('btn-delete')) confirmDelete(e.target.dataset.id);
                 
-                if (e.target.classList.contains('parcela-tag') && state.isAdmin) {
-                    const pid = e.target.dataset.parcelaId;
-                    const pago = e.target.dataset.pago === 'true';
-                    toggleParcela(pid, !pago);
+                const valorPagoBtn = e.target.closest('.valor-pago-btn');
+                if (valorPagoBtn && state.isAdmin) {
+                    openPagamento(parseInt(valorPagoBtn.dataset.id), valorPagoBtn.dataset.tipo);
                 }
             });
         }
 
+        // Pagamento modal form
+        const pagamentoForm = document.getElementById('pagamento-form');
+        if (pagamentoForm) {
+            pagamentoForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const id = parseInt(document.getElementById('pagamento-id').value);
+                const tipo = document.getElementById('pagamento-tipo').value;
+                const valor = parseFloat(document.getElementById('pagamento-input').value || 0);
+                
+                if (tipo === 'churrasco') {
+                    await DB.participantes.update(id, { valor_pago: valor });
+                } else {
+                    const p = state.participantes.find(x => x.id == id);
+                    const preco = (p && parseFloat(p.valor_camisa || 0)) || (p && window.Camisas ? Camisas.calcularPrecoCamisa(p.modelo_camisa, p.tam_camisa) : 0);
+                    await DB.participantes.update(id, { camisa_pago: valor, valor_camisa: preco });
+                }
+                
+                closeModal('modal-pagamento');
+                await refreshAll();
+                showToast('Pagamento atualizado!');
+            });
+
+            const pagInput = document.getElementById('pagamento-input');
+            if (pagInput) {
+                pagInput.addEventListener('input', () => {
+                    const id = parseInt(document.getElementById('pagamento-id').value);
+                    const tipo = document.getElementById('pagamento-tipo').value;
+                    const p = state.participantes.find(x => x.id == id);
+                    if (p) {
+                        const valorCamisaCalculado = window.Camisas ? Camisas.calcularPrecoCamisa(p.modelo_camisa, p.tam_camisa) : 0;
+                        const valorTotal = tipo === 'churrasco' ? parseFloat(p.valor_total || 0) : (parseFloat(p.valor_camisa || 0) || valorCamisaCalculado);
+                        updatePagamentoPreview(valorTotal);
+                    }
+                });
+            }
+        }
     }
 
     function editParticipante(id) {
@@ -336,28 +365,20 @@ window.App = (function() {
         const p = state.participantes.find(x => x.id == id);
         if (!p) return;
         
-        const p_parcelas = state.parcelas.filter(x => x.participante_id == id).sort((a,b) => a.numero_parcela - b.numero_parcela);
-        const nextParcela = p_parcelas.find(x => !x.pago);
-        if (!nextParcela) {
-            showToast('Nenhuma parcela pendente!');
+        const valorTotal = parseFloat(p.valor_total || 0);
+        const valorPago = parseFloat(p.valor_pago || 0);
+        const restante = valorTotal - valorPago;
+        
+        if (restante <= 0) {
+            showToast('Já está quitado! 🎉');
             return;
         }
 
-        let meta = 0; state.despesas.forEach(d => meta += parseFloat(d.valor || 0));
-        let totalEsperado = 0; state.participantes.forEach(x => totalEsperado += parseFloat(x.valor_total || 0));
-        let numberOfPayers = state.participantes.filter(x => x.categoria !== 'Acompanhante').length;
-        let discount = (totalEsperado > meta && meta > 0 && numberOfPayers > 0) ? (totalEsperado - meta) / numberOfPayers : 0;
-
-        let valorParc = parseFloat(nextParcela.valor);
-        if (nextParcela.numero_parcela === 4 && p.categoria !== 'Acompanhante' && discount > 0) {
-            valorParc -= discount;
-        }
-
         document.getElementById('pix-nome-pessoa').textContent = p.nome;
-        document.getElementById('pix-valor').textContent = valorParc.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+        document.getElementById('pix-valor').textContent = restante.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
         
         if (window.PIX && state.config) {
-            const payload = PIX.gerarPayload(valorParc, state.config.pix_chave, state.config.pix_nome, state.config.pix_cidade);
+            const payload = PIX.gerarPayload(restante, state.config.pix_chave, state.config.pix_nome, state.config.pix_cidade);
             PIX.gerarQRCode('pix-qrcode', payload);
             document.getElementById('pix-copiacola').value = payload;
         }
@@ -369,32 +390,24 @@ window.App = (function() {
         const p = state.participantes.find(x => x.id == id);
         if (!p) return;
         
-        const p_parcelas = state.parcelas.filter(x => x.participante_id == id).sort((a,b) => a.numero_parcela - b.numero_parcela);
-        const nextParcela = p_parcelas.find(x => !x.pago);
-        if (!nextParcela) {
-            showToast('Nenhuma parcela pendente!');
+        const valorTotal = parseFloat(p.valor_total || 0);
+        const valorPago = parseFloat(p.valor_pago || 0);
+        const restante = valorTotal - valorPago;
+        
+        if (restante <= 0) {
+            showToast('Já está quitado! 🎉');
             return;
         }
 
-        let meta = 0; state.despesas.forEach(d => meta += parseFloat(d.valor || 0));
-        let totalEsperado = 0; state.participantes.forEach(x => totalEsperado += parseFloat(x.valor_total || 0));
-        let numberOfPayers = state.participantes.filter(x => x.categoria !== 'Acompanhante').length;
-        let discount = (totalEsperado > meta && meta > 0 && numberOfPayers > 0) ? (totalEsperado - meta) / numberOfPayers : 0;
-
-        let valorParc = parseFloat(nextParcela.valor);
-        if (nextParcela.numero_parcela === 4 && p.categoria !== 'Acompanhante' && discount > 0) {
-            valorParc -= discount;
-        }
-
-        let phone = p.telefone || ''; // Assuming they might have phone added later or no phone at all
+        let phone = p.telefone || '';
         phone = phone.replace(/\D/g, '');
         if (phone && phone.length <= 11) phone = '55' + phone;
 
-        const valFormatted = valorParc.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+        const formatBRL = (val) => val.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
         
-        const msg = `Fala ${p.nome}! 😁 Segue o lembrete da parcela de ${valFormatted} do Solteiros e Casados 2026! 🎉⚽\n\n💠 Chave PIX (CPF): ${state.config.pix_chave || ''}\n👤 ${state.config.pix_nome || ''}\n🏦 Banco do Brasil\n💰 Valor: ${valFormatted}\n\nQualquer dúvida é só chamar! 🤙`;
+        const msg = `Fala ${p.nome}! Tudo bem? 🤙\n\nSegue o resumo da sua inscrição do *Solteiros e Casados 2026*:\n\n🥩 *Churrasco:* ${formatBRL(valorTotal)}\n✅ *Já pago:* ${formatBRL(valorPago)}\n⏳ *Falta:* ${formatBRL(restante)}\n\n💳 *Chave PIX (CPF):* ${state.config.pix_chave || '46413688807'}\n👤 *Nome:* ${state.config.pix_nome || 'LUAN AUGUSTO BARBOZA SIMAO'}\n🏛️ *Banco:* Banco do Brasil\n\nQualquer dúvida é só avisar! ⚽`;
         
-        window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`);
+        window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(msg)}`, '_blank');
     }
 
     function confirmDelete(id) {
@@ -435,10 +448,43 @@ window.App = (function() {
         openModal('modal-confirm');
     }
 
-    async function toggleParcela(parcelaId, newPagoStatus) {
-        await DB.parcelas.update(parcelaId, { pago: newPagoStatus, data_pagamento: newPagoStatus ? new Date().toISOString() : null });
-        await refreshAll();
-        showToast(newPagoStatus ? 'Parcela paga!' : 'Parcela pendente!');
+    function openPagamento(participanteId, tipo) {
+        const p = state.participantes.find(x => x.id == participanteId);
+        if (!p) return;
+        
+        const isChurrasco = tipo === 'churrasco';
+        const valorCamisaCalculado = window.Camisas ? Camisas.calcularPrecoCamisa(p.modelo_camisa, p.tam_camisa) : 0;
+        const valorTotal = isChurrasco ? parseFloat(p.valor_total || 0) : (parseFloat(p.valor_camisa || 0) || valorCamisaCalculado);
+        const valorPago = isChurrasco ? parseFloat(p.valor_pago || 0) : parseFloat(p.camisa_pago || 0);
+        
+        document.getElementById('pagamento-id').value = p.id;
+        document.getElementById('pagamento-tipo').value = tipo;
+        document.getElementById('pagamento-nome').textContent = p.nome;
+        document.getElementById('pagamento-info').textContent = `${isChurrasco ? 'Churrasco' : 'Camisa'} • Valor total: ${valorTotal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'})}`;
+        document.getElementById('pagamento-input').value = valorPago > 0 ? valorPago : '';
+        
+        updatePagamentoPreview(valorTotal);
+        openModal('modal-pagamento');
+    }
+
+    function updatePagamentoPreview(valorTotal) {
+        const input = document.getElementById('pagamento-input');
+        const restanteEl = document.getElementById('pagamento-restante');
+        if (!input || !restanteEl) return;
+        
+        const pago = parseFloat(input.value || 0);
+        const restante = valorTotal - pago;
+        
+        if (restante > 0) {
+            restanteEl.textContent = restante.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            restanteEl.className = 'text-xl font-bold text-amber-400';
+        } else if (restante < 0) {
+            restanteEl.textContent = '+' + Math.abs(restante).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            restanteEl.className = 'text-xl font-bold text-sky-400';
+        } else {
+            restanteEl.textContent = 'R$ 0,00';
+            restanteEl.className = 'text-xl font-bold text-emerald-400';
+        }
     }
 
     function openModal(id) {
@@ -486,7 +532,7 @@ window.App = (function() {
         sendWhatsApp, 
         confirmDelete, 
         confirmDeleteDespesa, 
-        toggleParcela,
+        openPagamento,
         showToast
     };
 })();

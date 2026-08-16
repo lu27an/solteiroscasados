@@ -9,10 +9,10 @@ CREATE TABLE IF NOT EXISTS public.configuracoes (
     pix_chave TEXT NOT NULL DEFAULT '46413688807',
     pix_nome TEXT NOT NULL DEFAULT 'LUAN AUGUSTO BARBOZA SIMAO',
     pix_cidade TEXT NOT NULL DEFAULT 'GUARARAPES',
-    admin_pin TEXT NOT NULL DEFAULT '302712'
+    admin_pin TEXT NOT NULL DEFAULT '125599'
 );
 INSERT INTO public.configuracoes (id, pix_chave, pix_nome, pix_cidade, admin_pin)
-VALUES (1, '46413688807', 'LUAN AUGUSTO BARBOZA SIMAO', 'GUARARAPES', '302712')
+VALUES (1, '46413688807', 'LUAN AUGUSTO BARBOZA SIMAO', 'GUARARAPES', '125599')
 ON CONFLICT (id) DO NOTHING;
 
 -- 2. Tabela de Participantes
@@ -115,3 +115,22 @@ GRANT USAGE ON SCHEMA public TO anon, authenticated;
 GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated;
 GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated;
 GRANT ALL ON ALL ROUTINES IN SCHEMA public TO anon, authenticated;
+
+-- =============================================
+-- MIGRAÇÃO: Novo modelo financeiro (valor_pago)
+-- =============================================
+ALTER TABLE public.participantes 
+  ADD COLUMN IF NOT EXISTS valor_pago NUMERIC(10,2) DEFAULT 0;
+ALTER TABLE public.participantes 
+  ADD COLUMN IF NOT EXISTS valor_camisa NUMERIC(10,2) DEFAULT 0;
+ALTER TABLE public.participantes 
+  ADD COLUMN IF NOT EXISTS camisa_pago NUMERIC(10,2) DEFAULT 0;
+
+-- Migrar dados das parcelas existentes para valor_pago
+UPDATE public.participantes p
+SET valor_pago = COALESCE((
+  SELECT SUM(parc.valor) 
+  FROM public.parcelas parc 
+  WHERE parc.participante_id = p.id AND parc.pago = true
+), 0)
+WHERE valor_pago = 0 OR valor_pago IS NULL;

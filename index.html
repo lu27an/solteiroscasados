@@ -94,7 +94,7 @@
             
             <!-- Dashboard Metrics -->
             <section id="dashboard" class="mb-6 space-y-4">
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3">
                     <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm metric-card">
                         <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Inscritos</p>
                         <p id="metric-inscritos" class="text-2xl font-bold text-white">0</p>
@@ -110,10 +110,6 @@
                     <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm metric-card">
                         <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Saldo Caixa</p>
                         <p id="metric-saldo" class="text-2xl font-bold text-sky-400">R$ 0,00</p>
-                    </div>
-                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm metric-card">
-                        <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Camisas</p>
-                        <p id="metric-camisas" class="text-2xl font-bold text-white">0</p>
                     </div>
                 </div>
 
@@ -141,10 +137,10 @@
             
             <div id="financeiro-filters" class="flex overflow-x-auto scrollbar-hide gap-2 mb-4 pb-1">
                 <button class="filter-btn bg-slate-700 text-white px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap active-filter" data-filter="todos">Todos</button>
-                <button class="filter-btn bg-slate-800 text-slate-300 hover:bg-slate-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap border border-slate-700" data-filter="pagos">✓ Pagos</button>
-                <button class="filter-btn bg-slate-800 text-slate-300 hover:bg-slate-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap border border-slate-700" data-filter="atraso">Em Atraso</button>
-                <button class="filter-btn bg-slate-800 text-slate-300 hover:bg-slate-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap border border-slate-700" data-filter="sem-chopp">Sem Chopp</button>
-                <button class="filter-btn bg-slate-800 text-slate-300 hover:bg-slate-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap border border-slate-700" data-filter="criancas">Crianças</button>
+                <button class="filter-btn bg-slate-800 text-slate-300 hover:bg-slate-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap border border-slate-700" data-filter="quitados">✅ Quitados</button>
+                <button class="filter-btn bg-slate-800 text-slate-300 hover:bg-slate-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap border border-slate-700" data-filter="parcial">🟡 Parcial</button>
+                <button class="filter-btn bg-slate-800 text-slate-300 hover:bg-slate-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap border border-slate-700" data-filter="sem-pagamento">🔴 Sem Pagamento</button>
+                <button class="filter-btn bg-slate-800 text-slate-300 hover:bg-slate-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap border border-slate-700" data-filter="patrocinadores">🤝 Patrocinadores</button>
             </div>
 
             <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
@@ -153,11 +149,10 @@
                         <thead class="bg-slate-800/50 text-slate-300 font-semibold border-b border-slate-700">
                             <tr>
                                 <th class="px-4 py-3">Participante</th>
-                                <th class="px-4 py-3 text-center">Set/26</th>
-                                <th class="px-4 py-3 text-center">Out/26</th>
-                                <th class="px-4 py-3 text-center">Nov/26</th>
-                                <th class="px-4 py-3 text-center">Dez/26</th>
-                                <th class="px-4 py-3 text-right">Total</th>
+                                <th class="px-4 py-3 text-right">Valor</th>
+                                <th class="px-4 py-3 text-right">Pago</th>
+                                <th class="px-4 py-3 text-right">Restante</th>
+                                <th class="px-4 py-3 text-center">Status</th>
                                 <th class="px-4 py-3 text-center admin-only hidden">Ações</th>
                             </tr>
                         </thead>
@@ -391,15 +386,53 @@
         </div>
 
         <!-- Tab Camisas -->
-        <div id="tab-camisas" class="tab-content hidden anim-fade-in">
+        <div id="tab-camisas" class="tab-content hidden anim-fade-in mt-4">
+            
+            <!-- Dashboard Camisas -->
+            <section id="dashboard-camisas" class="mb-6 space-y-4">
+                <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm metric-card">
+                        <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Total Camisas</p>
+                        <p id="metric-camisas-total" class="text-2xl font-bold text-white">0</p>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm metric-card">
+                        <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Valor Total</p>
+                        <p id="metric-camisas-esperado" class="text-2xl font-bold text-sky-400">R$ 0,00</p>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm metric-card">
+                        <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Arrecadado</p>
+                        <p id="metric-camisas-arrecadado" class="text-2xl font-bold text-emerald-400">R$ 0,00</p>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm metric-card">
+                        <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Pendente</p>
+                        <p id="metric-camisas-pendente" class="text-2xl font-bold text-amber-400">R$ 0,00</p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm">
+                    <div class="flex justify-between items-end mb-2">
+                        <h3 class="text-sm font-semibold text-white">Meta Coletiva (Camisas)</h3>
+                        <span id="camisas-thermometer-values" class="text-xs text-slate-400 font-mono">R$ 0 / R$ 0</span>
+                    </div>
+                    <div class="relative h-4 bg-slate-800 rounded-full overflow-hidden">
+                        <div id="camisas-thermometer-bar" class="absolute top-0 left-0 h-full bg-gradient-to-r from-sky-600 to-emerald-400 thermometer-anim" style="width: 0%"></div>
+                    </div>
+                    <div class="flex justify-between items-start mt-2">
+                        <span id="camisas-thermometer-percent" class="text-xs font-bold text-emerald-400">0%</span>
+                        <span id="camisas-thermometer-status" class="text-xs text-emerald-300 hidden px-2 py-0.5 bg-emerald-900/30 rounded-full">✅ 100% Quitado!</span>
+                    </div>
+                </div>
+            </section>
+
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
-                <div id="camisas-totals" class="flex flex-wrap gap-2">
+                <div id="camisas-totals" class="flex flex-wrap gap-2 w-full">
                     <!-- JS filled -->
                 </div>
-                <div class="flex gap-2 w-full sm:w-auto admin-only hidden">
-                    <button id="btn-export-csv" class="flex-1 sm:flex-none bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded-lg text-sm border border-slate-700 transition-colors">📥 CSV</button>
-                    <button id="btn-export-whatsapp" class="flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-sm transition-colors">📱 WhatsApp</button>
-                </div>
+            </div>
+            
+            <div class="flex justify-end gap-2 mb-4 admin-only hidden">
+                <button id="btn-export-csv" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded-lg text-sm border border-slate-700 transition-colors">📥 CSV</button>
+                <button id="btn-export-whatsapp" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-sm transition-colors">📱 WhatsApp</button>
             </div>
 
             <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
@@ -414,6 +447,9 @@
                                 <th class="px-4 py-3 text-center">Tamanho</th>
                                 <th class="px-4 py-3 text-center">Nº</th>
                                 <th class="px-4 py-3">Nome Costas</th>
+                                <th class="px-4 py-3 text-right admin-only hidden">Valor</th>
+                                <th class="px-4 py-3 text-right admin-only hidden">Pago</th>
+                                <th class="px-4 py-3 text-center admin-only hidden">Status</th>
                             </tr>
                         </thead>
                         <tbody id="camisas-tbody" class="divide-y divide-slate-800/50">
@@ -425,7 +461,7 @@
         </div>
 
         <!-- Tab Caixa -->
-        <div id="tab-caixa" class="tab-content hidden anim-fade-in admin-only">
+        <div id="tab-caixa" class="tab-content hidden anim-fade-in">
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div class="bg-slate-900 border border-emerald-900/50 rounded-xl p-4 shadow-sm relative overflow-hidden">
@@ -502,21 +538,21 @@
             </div>
             <div class="p-5 space-y-4">
                 <div class="flex items-start gap-4 p-3 bg-slate-800/50 rounded-lg">
-                    <div class="bg-slate-800 px-3 py-1.5 rounded text-sm font-mono text-emerald-400">09:00</div>
+                    <div class="bg-slate-800 px-3 py-1.5 rounded text-sm font-mono text-emerald-400">08:00</div>
                     <div>
                         <p class="font-medium text-white">Aquecimento 🏃</p>
                         <p class="text-xs text-slate-400">Entrega de camisas e preparação</p>
                     </div>
                 </div>
                 <div class="flex items-start gap-4 p-3 bg-slate-800/50 rounded-lg border border-slate-700">
-                    <div class="bg-slate-800 px-3 py-1.5 rounded text-sm font-mono text-emerald-400">10:00</div>
+                    <div class="bg-slate-800 px-3 py-1.5 rounded text-sm font-mono text-emerald-400">09:00</div>
                     <div>
                         <p class="font-medium text-white">Jogo ⚽</p>
                         <p class="text-xs text-slate-400">Solteiros x Casados (2 tempos de 40m)</p>
                     </div>
                 </div>
                 <div class="flex items-start gap-4 p-3 bg-slate-800/50 rounded-lg">
-                    <div class="bg-slate-800 px-3 py-1.5 rounded text-sm font-mono text-emerald-400">11:30</div>
+                    <div class="bg-slate-800 px-3 py-1.5 rounded text-sm font-mono text-emerald-400">12:00</div>
                     <div>
                         <p class="font-medium text-white">Chopp & Churrasco 🍻</p>
                         <p class="text-xs text-slate-400">Início da resenha e alimentação</p>
@@ -690,6 +726,39 @@
                 <button type="button" class="modal-close flex-1 py-2 rounded-lg font-medium text-slate-300 hover:bg-slate-800 border border-slate-700 transition-colors">Cancelar</button>
                 <button type="button" id="btn-confirm-yes" class="flex-1 bg-rose-600 hover:bg-rose-500 text-white py-2 rounded-lg font-medium transition-colors">Confirmar</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Pagamento -->
+    <div id="modal-pagamento" class="modal-overlay hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-sm shadow-2xl modal-content">
+            <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+                <h2 class="font-bold text-white text-lg flex items-center gap-2">💰 Registrar Pagamento</h2>
+                <button class="modal-close text-slate-400 hover:text-white transition-colors p-1">✕</button>
+            </div>
+            <form id="pagamento-form" class="p-6 space-y-4">
+                <input type="hidden" id="pagamento-id">
+                <input type="hidden" id="pagamento-tipo" value="churrasco">
+                <div class="text-center mb-2">
+                    <p id="pagamento-nome" class="text-lg font-semibold text-white">Participante</p>
+                    <p id="pagamento-info" class="text-sm text-slate-400">Valor total: R$ 0,00</p>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Valor já pago (total acumulado)</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500 text-sm">R$</span>
+                        <input type="number" id="pagamento-input" step="0.01" min="0" required class="w-full bg-slate-950 border border-slate-700 rounded-lg pl-10 pr-4 py-3 text-lg font-bold text-white text-center focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" placeholder="0,00">
+                    </div>
+                </div>
+                <div id="pagamento-preview" class="bg-slate-800/50 rounded-lg p-3 text-center">
+                    <p class="text-xs text-slate-400">Saldo restante</p>
+                    <p id="pagamento-restante" class="text-xl font-bold text-white">R$ 0,00</p>
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" class="modal-close flex-1 py-2.5 rounded-lg font-medium text-slate-300 hover:bg-slate-800 border border-slate-700 transition-colors">Cancelar</button>
+                    <button type="submit" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-lg font-medium transition-colors">Salvar</button>
+                </div>
+            </form>
         </div>
     </div>
 

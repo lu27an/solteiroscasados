@@ -47,8 +47,8 @@ window.Caixa = (function() {
 
     function render(state) {
         let entradas = 0;
-        state.parcelas.forEach(p => {
-            if (p.pago) entradas += (parseFloat(p.valor || 0) - parseFloat(p.valor_desconto || 0));
+        state.participantes.forEach(p => {
+            entradas += parseFloat(p.valor_pago || 0);
         });
 
         let saidas = 0;

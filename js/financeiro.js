@@ -36,36 +36,18 @@ window.Financeiro = (function() {
         if (!tbody) return;
         tbody.innerHTML = '';
 
-        const today = new Date();
-
-        const parcelasByParticipante = {};
-        state.parcelas.forEach(p => {
-            if (!parcelasByParticipante[p.participante_id]) {
-                parcelasByParticipante[p.participante_id] = [];
-            }
-            parcelasByParticipante[p.participante_id].push(p);
-        });
-
-        for (let pid in parcelasByParticipante) {
-            parcelasByParticipante[pid].sort((a, b) => a.numero_parcela - b.numero_parcela);
-        }
+        const formatBRL = (val) => val.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
 
         let filtered = state.participantes.filter(p => {
             if (currentSearch && !p.nome.toLowerCase().includes(currentSearch)) return false;
             
-            const p_parcelas = parcelasByParticipante[p.id] || [];
-            if (currentFilter === 'pagos') {
-                return p_parcelas.length === 4 && p_parcelas.every(x => x.pago);
-            }
-            if (currentFilter === 'atraso') {
-                return p_parcelas.some(x => !x.pago && new Date(x.data_vencimento + 'T23:59:59') < today);
-            }
-            if (currentFilter === 'sem-chopp') {
-                return p.tipo_consumo === 'Sem Chopp';
-            }
-            if (currentFilter === 'criancas') {
-                return p.tipo_consumo === 'Crianca Meia';
-            }
+            const valorPago = parseFloat(p.valor_pago || 0);
+            const valorTotal = parseFloat(p.valor_total || 0);
+            
+            if (currentFilter === 'quitados') return valorPago >= valorTotal && valorTotal > 0;
+            if (currentFilter === 'parcial') return valorPago > 0 && valorPago < valorTotal;
+            if (currentFilter === 'sem-pagamento') return valorPago === 0 && valorTotal > 0;
+            if (currentFilter === 'patrocinadores') return valorPago > valorTotal && valorTotal > 0;
             return true;
         });
 
@@ -82,15 +64,10 @@ window.Financeiro = (function() {
             'Crianca Meia': 'Criança'
         };
 
-        let meta = 0;
-        state.despesas.forEach(d => meta += parseFloat(d.valor || 0));
-        let totalEsperado = 0;
-        state.participantes.forEach(p => totalEsperado += parseFloat(p.valor_total || 0));
-        let numberOfPayers = state.participantes.filter(p => p.categoria !== 'Acompanhante').length;
-        let discount = (totalEsperado > meta && meta > 0 && numberOfPayers > 0) ? (totalEsperado - meta) / numberOfPayers : 0;
-
         filtered.forEach(p => {
-            const p_parcelas = parcelasByParticipante[p.id] || [];
+            const valorTotal = parseFloat(p.valor_total || 0);
+            const valorPago = parseFloat(p.valor_pago || 0);
+            const restante = valorTotal - valorPago;
             
             let responsavelText = '';
             if (p.categoria === 'Acompanhante' && p.responsavel_id) {
@@ -98,39 +75,34 @@ window.Financeiro = (function() {
                 if (resp) responsavelText = `<div class="text-xs text-slate-500">Dep. de ${resp.nome}</div>`;
             }
 
-            let parcelasHtml = '';
-            for (let i = 1; i <= 4; i++) {
-                const parc = p_parcelas.find(x => x.numero_parcela == i);
-                if (!parc) {
-                    parcelasHtml += `<td class="text-center px-3 py-3">-</td>`;
-                    continue;
-                }
-
-                let tagHtml = '';
-                const pDate = new Date(parc.data_vencimento + 'T23:59:59');
-                const classBase = state.isAdmin ? 'parcela-tag cursor-pointer' : 'parcela-tag';
-                
-                let valorComDesconto = parc.valor;
-                if (i === 4 && p.categoria !== 'Acompanhante' && discount > 0) {
-                    valorComDesconto -= discount;
-                }
-
-                if (parc.pago) {
-                    tagHtml = `<span class="${classBase} tag-pago text-xs px-2 py-1 rounded bg-emerald-500/20 text-emerald-400" data-parcela-id="${parc.id}" data-pago="${parc.pago}">✓ Pago</span>`;
-                } else if (pDate >= today) {
-                    tagHtml = `<span class="${classBase} tag-pendente text-xs px-2 py-1 rounded bg-slate-700 text-slate-300" data-parcela-id="${parc.id}" data-pago="${parc.pago}">Pendente</span>`;
-                } else {
-                    tagHtml = `<span class="${classBase} tag-atraso text-xs px-2 py-1 rounded bg-rose-500/20 text-rose-400" data-parcela-id="${parc.id}" data-pago="${parc.pago}">Em Atraso</span>`;
-                }
-
-                if (i === 4 && p.categoria !== 'Acompanhante' && discount > 0) {
-                    tagHtml += `<div class="text-[10px] text-emerald-400 mt-1">Desc. ${discount.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'})}</div>`;
-                }
-
-                parcelasHtml += `<td class="text-center px-3 py-3">${tagHtml}</td>`;
+            // Status badge
+            let statusHtml = '';
+            if (valorTotal === 0) {
+                statusHtml = '<span class="text-xs px-2 py-1 rounded bg-slate-700 text-slate-300">—</span>';
+            } else if (valorPago > valorTotal) {
+                statusHtml = '<span class="text-xs px-2 py-1 rounded bg-sky-500/20 text-sky-400">🤝 Patrocinador</span>';
+            } else if (valorPago >= valorTotal) {
+                statusHtml = '<span class="text-xs px-2 py-1 rounded bg-emerald-500/20 text-emerald-400">✅ Quitado</span>';
+            } else if (valorPago > 0) {
+                statusHtml = '<span class="text-xs px-2 py-1 rounded bg-amber-500/20 text-amber-400">🟡 Parcial</span>';
+            } else {
+                statusHtml = '<span class="text-xs px-2 py-1 rounded bg-rose-500/20 text-rose-400">🔴 Pendente</span>';
             }
 
-            const valTotalFormatado = parseFloat(p.valor_total || 0).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            // Pago column - clickable for admin
+            const pagoClass = state.isAdmin ? 'cursor-pointer hover:text-emerald-300 transition-colors valor-pago-btn' : '';
+            const pagoHtml = `<span class="${pagoClass} font-semibold ${valorPago > 0 ? 'text-emerald-400' : 'text-slate-500'}" data-id="${p.id}" data-tipo="churrasco">${formatBRL(valorPago)}</span>`;
+
+            // Restante column
+            let restanteHtml = '';
+            if (restante > 0) {
+                restanteHtml = `<span class="text-amber-400 font-semibold">${formatBRL(restante)}</span>`;
+            } else if (restante < 0) {
+                restanteHtml = `<span class="text-sky-400 font-semibold">+${formatBRL(Math.abs(restante))}</span>`;
+            } else {
+                restanteHtml = `<span class="text-emerald-400 font-semibold">R$ 0,00</span>`;
+            }
+
             const adminClass = state.isAdmin ? '' : 'hidden';
 
             const tr = document.createElement('tr');
@@ -143,8 +115,10 @@ window.Financeiro = (function() {
                     </div>
                     ${responsavelText}
                 </td>
-                ${parcelasHtml}
-                <td class="text-center px-3 py-3 font-semibold">${valTotalFormatado}</td>
+                <td class="text-right px-4 py-3 font-semibold">${formatBRL(valorTotal)}</td>
+                <td class="text-right px-4 py-3">${pagoHtml}</td>
+                <td class="text-right px-4 py-3">${restanteHtml}</td>
+                <td class="text-center px-4 py-3">${statusHtml}</td>
                 <td class="text-center px-3 py-3 admin-only ${adminClass}">
                     <div class="flex gap-1 justify-center">
                         <button class="btn-edit" data-id="${p.id}" title="Editar">✏️</button>

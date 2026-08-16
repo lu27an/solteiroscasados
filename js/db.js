@@ -8,7 +8,7 @@ window.DB = (() => {
         pix_chave: '46413688807',
         pix_nome: 'LUAN AUGUSTO BARBOZA SIMAO',
         pix_cidade: 'GUARARAPES',
-        admin_pin: '302712'
+        admin_pin: '125599'
     };
 
     async function init() {
@@ -35,8 +35,8 @@ window.DB = (() => {
                     setLocalObj('config', defaultConfig);
                 } else {
                     let conf = getLocalObj('config');
-                    if (conf.admin_pin === '2026') {
-                        conf.admin_pin = '302712';
+                    if (conf.admin_pin === '2026' || conf.admin_pin === '302712') {
+                        conf.admin_pin = '125599';
                         setLocalObj('config', conf);
                     }
                 }
