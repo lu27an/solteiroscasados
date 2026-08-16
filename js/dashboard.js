@@ -4,42 +4,36 @@ window.Dashboard = (function() {
         const now = new Date();
         const diff = target - now;
 
-        const countdownEl = document.getElementById('countdown');
-        if (diff <= 0) {
-            if (countdownEl) countdownEl.innerHTML = '<span class="text-xl font-bold text-emerald-400">Evento realizado! 🎉</span>';
-            return;
-        }
-
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-        const mins = Math.floor((diff / 1000 / 60) % 60);
-        const secs = Math.floor((diff / 1000) % 60);
-
-        if (countdownEl) {
-            countdownEl.innerHTML = `
-                <div class="flex justify-center items-center gap-4">
+        const countdownEls = [document.getElementById('countdown'), document.getElementById('countdown-desktop')];
+        const content = diff <= 0 
+            ? '<span class="text-xl font-bold text-emerald-400">Evento realizado! 🎉</span>'
+            : `
+                <div class="flex justify-center items-center gap-2 sm:gap-4">
                     <div class="text-center">
-                        <span class="text-xl font-bold text-emerald-400">${days}</span>
-                        <span class="text-xs text-slate-500 block">dias</span>
+                        <span class="text-base sm:text-xl font-bold text-emerald-400">${days}</span>
+                        <span class="text-[9px] sm:text-xs text-slate-500 block">dias</span>
                     </div>
-                    <div class="w-px h-8 bg-slate-700"></div>
+                    <div class="w-px h-6 sm:h-8 bg-slate-700"></div>
                     <div class="text-center">
-                        <span class="text-xl font-bold text-emerald-400">${hours.toString().padStart(2, '0')}</span>
-                        <span class="text-xs text-slate-500 block">horas</span>
+                        <span class="text-base sm:text-xl font-bold text-emerald-400">${hours.toString().padStart(2, '0')}</span>
+                        <span class="text-[9px] sm:text-xs text-slate-500 block">horas</span>
                     </div>
-                    <div class="w-px h-8 bg-slate-700"></div>
+                    <div class="w-px h-6 sm:h-8 bg-slate-700"></div>
                     <div class="text-center">
-                        <span class="text-xl font-bold text-emerald-400">${mins.toString().padStart(2, '0')}</span>
-                        <span class="text-xs text-slate-500 block">min</span>
+                        <span class="text-base sm:text-xl font-bold text-emerald-400">${mins.toString().padStart(2, '0')}</span>
+                        <span class="text-[9px] sm:text-xs text-slate-500 block">min</span>
                     </div>
-                    <div class="w-px h-8 bg-slate-700"></div>
+                    <div class="w-px h-6 sm:h-8 bg-slate-700"></div>
                     <div class="text-center">
-                        <span class="text-xl font-bold text-emerald-400">${secs.toString().padStart(2, '0')}</span>
-                        <span class="text-xs text-slate-500 block">seg</span>
+                        <span class="text-base sm:text-xl font-bold text-emerald-400">${secs.toString().padStart(2, '0')}</span>
+                        <span class="text-[9px] sm:text-xs text-slate-500 block">seg</span>
                     </div>
                 </div>
             `;
-        }
+
+        countdownEls.forEach(el => {
+            if (el) el.innerHTML = content;
+        });
     }
 
     function init() {
