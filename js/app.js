@@ -39,15 +39,38 @@ window.App = (function() {
     }
 
     function setupEvents() {
+        const btnMenu = document.getElementById('btn-menu');
+        const menuDropdown = document.getElementById('menu-dropdown');
+        const currentTabTitle = document.getElementById('current-tab-title');
+
+        if (btnMenu && menuDropdown) {
+            btnMenu.addEventListener('click', (e) => {
+                e.stopPropagation();
+                menuDropdown.classList.toggle('hidden');
+            });
+            document.addEventListener('click', (e) => {
+                if (!btnMenu.contains(e.target) && !menuDropdown.contains(e.target)) {
+                    menuDropdown.classList.add('hidden');
+                }
+            });
+        }
+
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.tab-btn').forEach(b => {
-                    b.classList.remove('border-emerald-500', 'text-emerald-400');
-                    b.classList.add('border-transparent', 'text-slate-400');
+                    b.classList.remove('border-emerald-500', 'text-emerald-400', 'bg-slate-800/50');
+                    b.classList.add('border-transparent', 'text-slate-300');
                 });
                 const target = e.currentTarget;
-                target.classList.remove('border-transparent', 'text-slate-400');
-                target.classList.add('border-emerald-500', 'text-emerald-400');
+                target.classList.remove('border-transparent', 'text-slate-300');
+                target.classList.add('border-emerald-500', 'text-emerald-400', 'bg-slate-800/50');
+                
+                if (currentTabTitle) {
+                    currentTabTitle.innerText = target.innerText;
+                }
+                if (menuDropdown) {
+                    menuDropdown.classList.add('hidden');
+                }
                 
                 document.querySelectorAll('.tab-content').forEach(tc => tc.classList.add('hidden'));
                 const tabId = target.dataset.tab;

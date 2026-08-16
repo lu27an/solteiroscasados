@@ -109,23 +109,31 @@
         </div>
     </section>
 
-    <!-- Tab Navigation -->
-    <nav id="tab-nav" class="sticky top-[116px] sm:top-[72px] z-30 bg-slate-950/90 backdrop-blur border-b border-slate-800 pt-2 mb-4">
-        <div class="max-w-7xl mx-auto px-4 flex overflow-x-auto scrollbar-hide gap-1">
-            <button class="tab-btn active px-4 py-2 text-sm font-medium border-b-2 border-emerald-500 text-emerald-400 whitespace-nowrap transition-colors" data-tab="financeiro">💰 Financeiro</button>
-            <button class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap transition-colors" data-tab="inscricao">📝 Inscrição</button>
-            <button class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap transition-colors" data-tab="bolao">🎯 Bolão</button>
-            <button class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap transition-colors" data-tab="escalacao">⚽ Escalação</button>
-            <button class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap transition-colors" data-tab="camisas">👕 Camisas</button>
-            <button class="tab-btn admin-only hidden px-4 py-2 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap transition-colors" data-tab="caixa">🏦 Caixa</button>
+    <!-- Main Menu / Tabs -->
+    <div class="max-w-7xl mx-auto px-4 mt-2 mb-4 relative z-30 flex items-center justify-between">
+        <h2 id="current-tab-title" class="text-lg font-bold text-emerald-400">📝 Inscrição</h2>
+        
+        <div class="relative">
+            <button id="btn-menu" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white px-3 py-2 rounded-lg flex items-center gap-2 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                <span class="hidden sm:inline">Menu</span>
+            </button>
+            <div id="menu-dropdown" class="hidden absolute right-0 top-full mt-2 w-56 bg-slate-900 border border-slate-700 rounded-lg shadow-xl overflow-hidden divide-y divide-slate-800">
+                <button class="tab-btn w-full text-left px-4 py-3 text-sm font-medium border-l-4 border-emerald-500 text-emerald-400 bg-slate-800/50 transition-colors" data-tab="inscricao">📝 Inscrição</button>
+                <button class="tab-btn w-full text-left px-4 py-3 text-sm font-medium border-l-4 border-transparent text-slate-300 hover:bg-slate-800 transition-colors" data-tab="financeiro">💰 Churrasco (Financeiro)</button>
+                <button class="tab-btn w-full text-left px-4 py-3 text-sm font-medium border-l-4 border-transparent text-slate-300 hover:bg-slate-800 transition-colors" data-tab="bolao">🎯 Bolão</button>
+                <button class="tab-btn w-full text-left px-4 py-3 text-sm font-medium border-l-4 border-transparent text-slate-300 hover:bg-slate-800 transition-colors" data-tab="escalacao">⚽ Escalação</button>
+                <button class="tab-btn w-full text-left px-4 py-3 text-sm font-medium border-l-4 border-transparent text-slate-300 hover:bg-slate-800 transition-colors" data-tab="camisas">👕 Camisas</button>
+                <button class="tab-btn admin-only hidden w-full text-left px-4 py-3 text-sm font-medium border-l-4 border-transparent text-slate-300 hover:bg-slate-800 transition-colors" data-tab="caixa">🏦 Caixa</button>
+            </div>
         </div>
-    </nav>
+    </div>
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 w-full flex-grow pb-10">
         
         <!-- Tab Financeiro -->
-        <div id="tab-financeiro" class="tab-content block anim-fade-in">
+        <div id="tab-financeiro" class="tab-content hidden anim-fade-in">
             <div class="flex flex-col sm:flex-row gap-3 mb-4">
                 <div class="relative flex-grow">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500">🔍</span>
@@ -164,7 +172,7 @@
         </div>
 
         <!-- Tab Inscrição -->
-        <div id="tab-inscricao" class="tab-content hidden anim-fade-in">
+        <div id="tab-inscricao" class="tab-content block anim-fade-in max-w-2xl mx-auto">
             <div class="max-w-2xl mx-auto space-y-8">
                 <!-- Formulário Público -->
                 <div>
