@@ -21,6 +21,8 @@ window.Inscricao = (function() {
         const camisaFields = document.getElementById('insc-camisa-fields');
         const posGroup = document.getElementById('insc-posicao-group');
 
+        const timeCamisaGroup = document.getElementById('insc-time-camisa-container');
+
         // Toggle position field based on team
         if (timeSelect) {
             timeSelect.addEventListener('change', () => {
@@ -28,6 +30,7 @@ window.Inscricao = (function() {
                     if (posGroup) posGroup.classList.add('hidden');
                     // Resenha can opt out of shirt
                     if (querCamisa) querCamisa.disabled = false;
+                    if (timeCamisaGroup) timeCamisaGroup.classList.remove('hidden');
                 } else {
                     if (posGroup) posGroup.classList.remove('hidden');
                     // Jogadores MUST have shirt
@@ -36,6 +39,7 @@ window.Inscricao = (function() {
                         querCamisa.disabled = true;
                     }
                     if (camisaFields) camisaFields.classList.remove('hidden');
+                    if (timeCamisaGroup) timeCamisaGroup.classList.add('hidden');
                 }
             });
         }
@@ -80,7 +84,7 @@ window.Inscricao = (function() {
                     posicao_campo: posicao,
                     tipo_consumo: consumo,
                     quer_camisa: wantShirt,
-                    modelo_camisa: wantShirt ? document.getElementById('insc-modelo').value : null,
+                    modelo_camisa: wantShirt ? (time === 'Resenha' ? `${document.getElementById('insc-modelo').value} - ${document.getElementById('insc-time-camisa').value}` : document.getElementById('insc-modelo').value) : null,
                     tam_camisa: wantShirt ? document.getElementById('insc-tamanho').value : null,
                     num_camisa: wantShirt && document.getElementById('insc-numero').value ? parseInt(document.getElementById('insc-numero').value) : null,
                     nome_camisa: wantShirt ? (document.getElementById('insc-nome-camisa').value || '').toUpperCase() : null,
@@ -131,20 +135,20 @@ window.Inscricao = (function() {
 
         // Calculate valor
         let valor = 0;
-        if (insc.consumo === 'Completo') valor = 110;
-        else if (insc.consumo === 'Sem Chopp') valor = 80;
-        else if (insc.consumo === 'Crianca Meia') valor = 40;
+        if (insc.tipo_consumo === 'Completo') valor = 110;
+        else if (insc.tipo_consumo === 'Sem Chopp') valor = 80;
+        else if (insc.tipo_consumo === 'Crianca Meia') valor = 40;
 
         const participanteData = {
             nome: insc.nome,
             telefone: insc.telefone,
-            categoria: insc.time,
-            posicao_campo: insc.posicao,
-            tipo_consumo: insc.consumo,
-            modelo_camisa: insc.modeloCamisa || 'Jogador',
-            tam_camisa: insc.tamCamisa || 'M',
-            num_camisa: insc.numCamisa,
-            nome_camisa: insc.nomeCamisa || '',
+            categoria: insc.categoria,
+            posicao_campo: insc.posicao_campo,
+            tipo_consumo: insc.tipo_consumo,
+            modelo_camisa: insc.modelo_camisa || (insc.quer_camisa ? 'Jogador' : null),
+            tam_camisa: insc.tam_camisa || (insc.quer_camisa ? 'M' : null),
+            num_camisa: insc.num_camisa,
+            nome_camisa: insc.nome_camisa || '',
             responsavel_id: null,
             valor_total: valor
         };

@@ -200,9 +200,7 @@ window.DB = (() => {
                 numero_parcela: i + 1,
                 data_vencimento: v,
                 valor: valorParcela,
-                valor_desconto: 0,
-                pago: false,
-                data_pagamento: null
+                pago: false
             }));
 
             if (!_isLocal) {
