@@ -1,26 +1,12 @@
 window.Inscricao = (function() {
     const STORAGE_KEY = 'sc2026_inscricoes';
 
-    function getInscricoes() {
-        try {
-            const data = localStorage.getItem(STORAGE_KEY);
-            return data ? JSON.parse(data) : [];
-        } catch(e) { return []; }
-    }
-
-    function saveInscricoes(list) {
-        try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-        } catch(e) {}
-    }
-
     function init() {
         const form = document.getElementById('form-inscricao');
         const timeSelect = document.getElementById('insc-time');
         const querCamisa = document.getElementById('insc-quer-camisa');
         const camisaFields = document.getElementById('insc-camisa-fields');
         const posGroup = document.getElementById('insc-posicao-group');
-
         const timeCamisaGroup = document.getElementById('insc-time-camisa-container');
 
         // Toggle position field based on team
@@ -55,7 +41,7 @@ window.Inscricao = (function() {
 
         // Submit form
         if (form) {
-            form.addEventListener('submit', (e) => {
+            form.addEventListener('submit', async (e) => {
                 e.preventDefault();
 
                 const nome = document.getElementById('insc-nome').value.trim();
@@ -76,8 +62,13 @@ window.Inscricao = (function() {
                     return;
                 }
 
+                const btnSubmit = document.getElementById('btn-enviar-inscricao');
+                if (btnSubmit) {
+                    btnSubmit.disabled = true;
+                    btnSubmit.textContent = 'Enviando...';
+                }
+
                 const inscricao = {
-                    id: Date.now(),
                     nome,
                     telefone,
                     categoria: time,
@@ -91,22 +82,33 @@ window.Inscricao = (function() {
                     bolao_solteiros: parseInt(document.getElementById('insc-placar-solteiros').value) || 0,
                     bolao_casados: parseInt(document.getElementById('insc-placar-casados').value) || 0,
                     bolao_mensagem: document.getElementById('insc-mensagem').value.trim(),
-                    status: 'pendente', // pendente, aprovado, rejeitado
-                    created_at: new Date().toISOString()
+                    status: 'pendente'
                 };
 
-                const list = getInscricoes();
-                list.push(inscricao);
-                saveInscricoes(list);
+                try {
+                    if (window.DB && DB.inscricoes) {
+                        await DB.inscricoes.create(inscricao);
+                    }
 
-                form.reset();
-                document.getElementById('insc-placar-solteiros').value = '0';
-                document.getElementById('insc-placar-casados').value = '0';
-                if (querCamisa) querCamisa.checked = true;
-                if (camisaFields) camisaFields.classList.remove('hidden');
+                    form.reset();
+                    document.getElementById('insc-placar-solteiros').value = '0';
+                    document.getElementById('insc-placar-casados').value = '0';
+                    if (querCamisa) querCamisa.checked = true;
+                    if (camisaFields) camisaFields.classList.remove('hidden');
 
-                if (window.App) App.showToast('Inscrição enviada com sucesso! Aguarde aprovação do organizador.');
-                render(window.App ? App.state : {});
+                    if (window.App) {
+                        App.showToast('Inscrição enviada com sucesso! Aguarde aprovação do organizador.');
+                        await App.refreshAll();
+                    }
+                } catch (err) {
+                    console.error('Erro ao enviar inscricao:', err);
+                    if (window.App) App.showToast('Erro ao enviar inscrição. Tente novamente.');
+                } finally {
+                    if (btnSubmit) {
+                        btnSubmit.disabled = false;
+                        btnSubmit.textContent = '🚀 Enviar Inscrição';
+                    }
+                }
             });
         }
 
@@ -116,21 +118,26 @@ window.Inscricao = (function() {
             pendentesContainer.addEventListener('click', async (e) => {
                 const btn = e.target.closest('button');
                 if (!btn) return;
-                const id = parseInt(btn.dataset.id);
+                const id = btn.dataset.id;
                 if (!id) return;
 
                 if (btn.classList.contains('btn-aprovar-inscricao')) {
                     await aprovarInscricao(id);
                 } else if (btn.classList.contains('btn-rejeitar-inscricao')) {
-                    rejeitarInscricao(id);
+                    await rejeitarInscricao(id);
                 }
             });
         }
     }
 
     async function aprovarInscricao(id) {
-        const list = getInscricoes();
-        const insc = list.find(i => i.id === id);
+        let list = [];
+        if (window.App && window.App.state && window.App.state.inscricoes) {
+            list = window.App.state.inscricoes;
+        } else if (window.DB && DB.inscricoes) {
+            list = await DB.inscricoes.list();
+        }
+        const insc = list.find(i => i.id == id);
         if (!insc) return;
 
         // Calculate valor
@@ -157,9 +164,10 @@ window.Inscricao = (function() {
             const created = await DB.participantes.create(participanteData);
             await DB.parcelas.createForParticipante(created.id, valor);
 
-            // Mark as approved
-            insc.status = 'aprovado';
-            saveInscricoes(list);
+            // Mark as approved in DB
+            if (window.DB && DB.inscricoes) {
+                await DB.inscricoes.update(id, { status: 'aprovado' });
+            }
 
             if (window.App) {
                 await App.refreshAll();
@@ -171,22 +179,23 @@ window.Inscricao = (function() {
         }
     }
 
-    function rejeitarInscricao(id) {
-        const list = getInscricoes();
-        const insc = list.find(i => i.id === id);
-        if (!insc) return;
+    async function rejeitarInscricao(id) {
+        try {
+            if (window.DB && DB.inscricoes) {
+                await DB.inscricoes.update(id, { status: 'rejeitado' });
+            }
 
-        insc.status = 'rejeitado';
-        saveInscricoes(list);
-
-        if (window.App) {
-            App.showToast(`Inscrição de ${insc.nome} foi rejeitada.`);
+            if (window.App) {
+                await App.refreshAll();
+                App.showToast('Inscrição rejeitada.');
+            }
+        } catch (err) {
+            console.error('Error rejecting inscription:', err);
         }
-        render(window.App ? App.state : {});
     }
 
     function render(state) {
-        const list = getInscricoes();
+        const list = (state && state.inscricoes) ? state.inscricoes : [];
         const pendentes = list.filter(i => i.status === 'pendente');
         const aprovados = list.filter(i => i.status === 'aprovado');
 

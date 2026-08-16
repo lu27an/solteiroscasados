@@ -61,6 +61,26 @@ CREATE TABLE IF NOT EXISTS public.escalacao (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- 6. Tabela de Inscrições / Bolão (Sincronização em Tempo Real)
+CREATE TABLE IF NOT EXISTS public.inscricoes (
+    id SERIAL PRIMARY KEY,
+    nome TEXT NOT NULL,
+    telefone TEXT,
+    categoria TEXT NOT NULL,
+    posicao_campo TEXT,
+    tipo_consumo TEXT,
+    quer_camisa BOOLEAN DEFAULT true,
+    modelo_camisa TEXT,
+    tam_camisa TEXT,
+    num_camisa INTEGER,
+    nome_camisa TEXT,
+    bolao_solteiros INTEGER DEFAULT 0,
+    bolao_casados INTEGER DEFAULT 0,
+    bolao_mensagem TEXT,
+    status TEXT DEFAULT 'pendente', -- pendente, aprovado, rejeitado
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- =============================================
 -- CRÍTICO: Desabilitar Row Level Security (RLS)
 -- Isso é necessário para o app funcionar sem autenticação
@@ -70,6 +90,7 @@ ALTER TABLE public.participantes DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.parcelas DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.despesas DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.escalacao DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.inscricoes DISABLE ROW LEVEL SECURITY;
 
 -- Remover qualquer política de RLS existente que possa bloquear
 DROP POLICY IF EXISTS "Enable all for anon" ON public.participantes;
@@ -77,6 +98,7 @@ DROP POLICY IF EXISTS "Enable all for anon" ON public.parcelas;
 DROP POLICY IF EXISTS "Enable all for anon" ON public.despesas;
 DROP POLICY IF EXISTS "Enable all for anon" ON public.configuracoes;
 DROP POLICY IF EXISTS "Enable all for anon" ON public.escalacao;
+DROP POLICY IF EXISTS "Enable all for anon" ON public.inscricoes;
 
 -- Garantir acesso público (anon) a todas as tabelas
 GRANT ALL ON public.configuracoes TO anon;
@@ -84,4 +106,5 @@ GRANT ALL ON public.participantes TO anon;
 GRANT ALL ON public.parcelas TO anon;
 GRANT ALL ON public.despesas TO anon;
 GRANT ALL ON public.escalacao TO anon;
+GRANT ALL ON public.inscricoes TO anon;
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO anon;

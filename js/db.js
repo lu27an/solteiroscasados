@@ -86,18 +86,25 @@ window.DB = (() => {
     const participantes = {
         async list() {
             if (!_isLocal) {
-                const { data, error } = await supabaseClient.from('participantes').select('*').order('nome');
-                if (error) throw error;
-                return data;
+                try {
+                    const { data, error } = await supabaseClient.from('participantes').select('*').order('nome');
+                    if (!error && data) return data;
+                } catch(e) {
+                    console.warn("Supabase participantes.list fallback:", e);
+                }
             }
             const list = getLocal('participantes');
             return list.sort((a, b) => a.nome.localeCompare(b.nome));
         },
         async create(data) {
             if (!_isLocal) {
-                const { data: created, error } = await supabaseClient.from('participantes').insert(data).select().single();
-                if (error) throw error;
-                return created;
+                try {
+                    const { data: created, error } = await supabaseClient.from('participantes').insert(data).select().single();
+                    if (!error && created) return created;
+                    if (error) console.warn("Supabase participantes.create error:", error);
+                } catch(e) {
+                    console.warn("Supabase participantes.create fallback:", e);
+                }
             }
             const list = getLocal('participantes');
             const newObj = { ...data, id: generateId('participantes'), created_at: new Date().toISOString() };
@@ -107,9 +114,12 @@ window.DB = (() => {
         },
         async update(id, updates) {
             if (!_isLocal) {
-                const { data: updated, error } = await supabaseClient.from('participantes').update(updates).eq('id', id).select().single();
-                if (error) throw error;
-                return updated;
+                try {
+                    const { data: updated, error } = await supabaseClient.from('participantes').update(updates).eq('id', id).select().single();
+                    if (!error && updated) return updated;
+                } catch(e) {
+                    console.warn("Supabase participantes.update fallback:", e);
+                }
             }
             const list = getLocal('participantes');
             const index = list.findIndex(p => p.id == id);
@@ -122,13 +132,14 @@ window.DB = (() => {
         },
         async delete(id) {
             if (!_isLocal) {
-                const { error: err1 } = await supabaseClient.from('parcelas').delete().eq('participante_id', id);
-                if (err1) throw err1;
-                const { error: err2 } = await supabaseClient.from('participantes').update({ responsavel_id: null }).eq('responsavel_id', id);
-                if (err2) throw err2;
-                const { error: err3 } = await supabaseClient.from('participantes').delete().eq('id', id);
-                if (err3) throw err3;
-                return;
+                try {
+                    await supabaseClient.from('parcelas').delete().eq('participante_id', id);
+                    await supabaseClient.from('participantes').update({ responsavel_id: null }).eq('responsavel_id', id);
+                    const { error: err3 } = await supabaseClient.from('participantes').delete().eq('id', id);
+                    if (!err3) return;
+                } catch(e) {
+                    console.warn("Supabase participantes.delete fallback:", e);
+                }
             }
             let list = getLocal('participantes');
             list = list.filter(p => p.id != id);
@@ -150,26 +161,35 @@ window.DB = (() => {
     const parcelas = {
         async list() {
             if (!_isLocal) {
-                const { data, error } = await supabaseClient.from('parcelas').select('*');
-                if (error) throw error;
-                return data;
+                try {
+                    const { data, error } = await supabaseClient.from('parcelas').select('*');
+                    if (!error && data) return data;
+                } catch(e) {
+                    console.warn("Supabase parcelas.list fallback:", e);
+                }
             }
             return getLocal('parcelas');
         },
         async listByParticipante(participanteId) {
             if (!_isLocal) {
-                const { data, error } = await supabaseClient.from('parcelas').select('*').eq('participante_id', participanteId).order('numero_parcela');
-                if (error) throw error;
-                return data;
+                try {
+                    const { data, error } = await supabaseClient.from('parcelas').select('*').eq('participante_id', participanteId).order('numero_parcela');
+                    if (!error && data) return data;
+                } catch(e) {
+                    console.warn("Supabase parcelas.listByParticipante fallback:", e);
+                }
             }
             const list = getLocal('parcelas');
             return list.filter(p => p.participante_id == participanteId).sort((a, b) => a.numero_parcela - b.numero_parcela);
         },
         async create(data) {
             if (!_isLocal) {
-                const { data: created, error } = await supabaseClient.from('parcelas').insert(data).select().single();
-                if (error) throw error;
-                return created;
+                try {
+                    const { data: created, error } = await supabaseClient.from('parcelas').insert(data).select().single();
+                    if (!error && created) return created;
+                } catch(e) {
+                    console.warn("Supabase parcelas.create fallback:", e);
+                }
             }
             const list = getLocal('parcelas');
             const newObj = { ...data, id: generateId('parcelas'), created_at: new Date().toISOString() };
@@ -179,9 +199,12 @@ window.DB = (() => {
         },
         async update(id, updates) {
             if (!_isLocal) {
-                const { data: updated, error } = await supabaseClient.from('parcelas').update(updates).eq('id', id).select().single();
-                if (error) throw error;
-                return updated;
+                try {
+                    const { data: updated, error } = await supabaseClient.from('parcelas').update(updates).eq('id', id).select().single();
+                    if (!error && updated) return updated;
+                } catch(e) {
+                    console.warn("Supabase parcelas.update fallback:", e);
+                }
             }
             const list = getLocal('parcelas');
             const index = list.findIndex(p => p.id == id);
@@ -204,9 +227,12 @@ window.DB = (() => {
             }));
 
             if (!_isLocal) {
-                const { data: created, error } = await supabaseClient.from('parcelas').insert(newParcelas).select();
-                if (error) throw error;
-                return created;
+                try {
+                    const { data: created, error } = await supabaseClient.from('parcelas').insert(newParcelas).select();
+                    if (!error && created) return created;
+                } catch(e) {
+                    console.warn("Supabase parcelas.createForParticipante fallback:", e);
+                }
             }
             
             const list = getLocal('parcelas');
@@ -292,36 +318,94 @@ window.DB = (() => {
     };
 
     const config = {
-        async get(chave) {
-            if (!_isLocal) {
-                const { data, error } = await supabaseClient.from('configuracoes').select('valor').eq('chave', chave).single();
-                if (error) return null;
-                return data ? data.valor : null;
-            }
-            const conf = getLocalObj('config');
-            return conf[chave] !== undefined ? conf[chave] : null;
-        },
         async getAll() {
             if (!_isLocal) {
-                const { data, error } = await supabaseClient.from('configuracoes').select('*');
-                if (error) throw error;
-                const conf = {};
-                data.forEach(item => conf[item.chave] = item.valor);
-                return conf;
+                try {
+                    const { data, error } = await supabaseClient.from('configuracoes').select('*').limit(1).single();
+                    if (!error && data) {
+                        return {
+                            pix_chave: data.pix_chave || defaultConfig.pix_chave,
+                            pix_nome: data.pix_nome || defaultConfig.pix_nome,
+                            pix_cidade: data.pix_cidade || defaultConfig.pix_cidade,
+                            admin_pin: data.admin_pin || defaultConfig.admin_pin
+                        };
+                    }
+                } catch(e) {}
+                return defaultConfig;
             }
-            return getLocalObj('config');
+            return getLocalObj('config') || defaultConfig;
         },
-        async set(chave, valor) {
+        async set(keyValues) {
             if (!_isLocal) {
-                const { error } = await supabaseClient.from('configuracoes').upsert({ chave, valor }, { onConflict: 'chave' });
+                const { error } = await supabaseClient.from('configuracoes').update(keyValues).eq('id', 1);
                 if (error) throw error;
                 return;
             }
-            const conf = getLocalObj('config');
-            conf[chave] = valor;
+            const conf = { ...getLocalObj('config'), ...keyValues };
             setLocalObj('config', conf);
         }
     };
 
-    return { init, isLocal, participantes, parcelas, despesas, config };
+    const inscricoes = {
+        async list() {
+            if (!_isLocal) {
+                try {
+                    const { data, error } = await supabaseClient.from('inscricoes').select('*').order('created_at', { ascending: false });
+                    if (!error && data) return data;
+                } catch (err) {
+                    console.warn("Supabase inscricoes list error, using local fallback", err);
+                }
+            }
+            return getLocal('inscricoes');
+        },
+        async create(data) {
+            if (!_isLocal) {
+                try {
+                    const { data: created, error } = await supabaseClient.from('inscricoes').insert(data).select().single();
+                    if (!error && created) return created;
+                    if (error) console.warn("Supabase inscricoes.create error:", error);
+                } catch(e) {
+                    console.warn("Supabase inscricoes.create fallback:", e);
+                }
+            }
+            const list = getLocal('inscricoes');
+            const newObj = { ...data, id: generateId('inscricoes'), created_at: new Date().toISOString() };
+            list.push(newObj);
+            setLocal('inscricoes', list);
+            return newObj;
+        },
+        async update(id, updates) {
+            if (!_isLocal) {
+                try {
+                    const { data: updated, error } = await supabaseClient.from('inscricoes').update(updates).eq('id', id).select().single();
+                    if (!error && updated) return updated;
+                } catch(e) {
+                    console.warn("Supabase inscricoes.update fallback:", e);
+                }
+            }
+            const list = getLocal('inscricoes');
+            const index = list.findIndex(i => i.id == id);
+            if (index !== -1) {
+                list[index] = { ...list[index], ...updates };
+                setLocal('inscricoes', list);
+                return list[index];
+            }
+            return null;
+        },
+        async delete(id) {
+            if (!_isLocal) {
+                try {
+                    const { error } = await supabaseClient.from('inscricoes').delete().eq('id', id);
+                    if (!error) return;
+                } catch(e) {
+                    console.warn("Supabase inscricoes.delete fallback:", e);
+                }
+            }
+            let list = getLocal('inscricoes');
+            list = list.filter(i => i.id != id);
+            setLocal('inscricoes', list);
+        }
+    };
+
+    return { init, isLocal, participantes, parcelas, despesas, config, inscricoes };
 })();

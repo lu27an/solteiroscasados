@@ -3,6 +3,7 @@ window.App = (function() {
         participantes: [],
         parcelas: [],
         despesas: [],
+        inscricoes: [],
         config: {},
         isAdmin: false
     };
@@ -21,21 +22,33 @@ window.App = (function() {
 
         setupEvents();
         await refreshAll();
+
+        // Auto-sync every 20 seconds so mobile registrations appear on desktop live
+        setInterval(() => {
+            refreshAll(true);
+        }, 20000);
     }
 
-    async function refreshAll() {
-        state.participantes = await DB.participantes.list();
-        state.parcelas = await DB.parcelas.list();
-        state.despesas = await DB.despesas.list();
-        
-        Dashboard.render(state);
-        Financeiro.render(state);
-        Escalacao.render(state);
-        Camisas.render(state);
-        Caixa.render(state);
-        if (window.Inscricao) Inscricao.render(state);
-        
-        updateAdminVisibility();
+    async function refreshAll(silent = false) {
+        try {
+            state.participantes = await DB.participantes.list();
+            state.parcelas = await DB.parcelas.list();
+            state.despesas = await DB.despesas.list();
+            if (DB.inscricoes) {
+                state.inscricoes = await DB.inscricoes.list();
+            }
+            
+            Dashboard.render(state);
+            Financeiro.render(state);
+            Escalacao.render(state);
+            Camisas.render(state);
+            Caixa.render(state);
+            if (window.Inscricao) Inscricao.render(state);
+            
+            updateAdminVisibility();
+        } catch (err) {
+            if (!silent) console.error("Error refreshing data:", err);
+        }
     }
 
     function setupEvents() {
