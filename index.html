@@ -109,6 +109,7 @@
         <div class="max-w-7xl mx-auto px-4 flex overflow-x-auto scrollbar-hide gap-1">
             <button class="tab-btn active px-4 py-2 text-sm font-medium border-b-2 border-emerald-500 text-emerald-400 whitespace-nowrap transition-colors" data-tab="financeiro">💰 Financeiro</button>
             <button class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap transition-colors" data-tab="inscricao">📝 Inscrição</button>
+            <button class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap transition-colors" data-tab="bolao">🎯 Bolão</button>
             <button class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap transition-colors" data-tab="escalacao">⚽ Escalação</button>
             <button class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap transition-colors" data-tab="camisas">👕 Camisas</button>
             <button class="tab-btn admin-only hidden px-4 py-2 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap transition-colors" data-tab="caixa">🏦 Caixa</button>
@@ -159,7 +160,7 @@
 
         <!-- Tab Inscrição -->
         <div id="tab-inscricao" class="tab-content hidden anim-fade-in">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="max-w-2xl mx-auto space-y-8">
                 <!-- Formulário Público -->
                 <div>
                     <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
@@ -274,30 +275,34 @@
                     </div>
                 </div>
 
-                <!-- Painel de Palpites Aprovados + Admin -->
-                <div class="space-y-6">
-                    <!-- Mural de Palpites -->
-                    <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
-                        <div class="p-4 border-b border-slate-800 bg-slate-800/30 flex justify-between items-center">
-                            <h3 class="font-bold text-white flex items-center gap-2">🎯 Palpites do Bolão</h3>
-                            <span id="bolao-count" class="text-xs bg-slate-700 text-slate-200 px-2 py-0.5 rounded-full">0</span>
+                <!-- Admin: Inscrições Pendentes -->
+                <div class="admin-only hidden">
+                    <div class="bg-slate-900 border border-amber-900/50 rounded-2xl shadow-xl overflow-hidden">
+                        <div class="p-4 border-b border-slate-800 bg-amber-950/30 flex justify-between items-center">
+                            <h3 class="font-bold text-amber-400 flex items-center gap-2">⏳ Inscrições Pendentes</h3>
+                            <span id="pendentes-count" class="text-xs bg-amber-900/50 text-amber-300 px-2 py-0.5 rounded-full">0</span>
                         </div>
-                        <div id="bolao-mural" class="p-4 space-y-3 max-h-[400px] overflow-y-auto scrollbar-thin">
-                            <p class="text-slate-500 text-sm italic text-center py-4">Nenhum palpite ainda. Seja o primeiro!</p>
+                        <div id="inscricoes-pendentes" class="p-4 space-y-3 max-h-[500px] overflow-y-auto scrollbar-thin">
+                            <p class="text-slate-500 text-sm italic text-center py-4">Nenhuma inscrição pendente.</p>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
 
-                    <!-- Admin: Inscrições Pendentes -->
-                    <div class="admin-only hidden">
-                        <div class="bg-slate-900 border border-amber-900/50 rounded-2xl shadow-xl overflow-hidden">
-                            <div class="p-4 border-b border-slate-800 bg-amber-950/30 flex justify-between items-center">
-                                <h3 class="font-bold text-amber-400 flex items-center gap-2">⏳ Inscrições Pendentes</h3>
-                                <span id="pendentes-count" class="text-xs bg-amber-900/50 text-amber-300 px-2 py-0.5 rounded-full">0</span>
-                            </div>
-                            <div id="inscricoes-pendentes" class="p-4 space-y-3 max-h-[500px] overflow-y-auto scrollbar-thin">
-                                <p class="text-slate-500 text-sm italic text-center py-4">Nenhuma inscrição pendente.</p>
-                            </div>
+        <!-- Tab Bolão -->
+        <div id="tab-bolao" class="tab-content hidden anim-fade-in">
+            <div class="max-w-3xl mx-auto">
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
+                    <div class="p-4 border-b border-slate-800 bg-slate-800/30 flex justify-between items-center">
+                        <div>
+                            <h2 class="font-bold text-white text-lg flex items-center gap-2">🎯 Palpites do Bolão</h2>
+                            <p class="text-xs text-slate-400 mt-1">Veja quem tem os melhores palpites para o clássico!</p>
                         </div>
+                        <span id="bolao-count" class="text-xs bg-slate-700 text-slate-200 px-3 py-1 rounded-full font-bold">0</span>
+                    </div>
+                    <div id="bolao-mural" class="p-4 space-y-3 min-h-[400px] max-h-[600px] overflow-y-auto scrollbar-thin">
+                        <p class="text-slate-500 text-sm italic text-center py-4">Nenhum palpite ainda. Seja o primeiro na aba Inscrição!</p>
                     </div>
                 </div>
             </div>
