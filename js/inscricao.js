@@ -131,20 +131,20 @@ window.Inscricao = (function() {
 
         // Calculate valor
         let valor = 0;
-        if (insc.tipo_consumo === 'Completo') valor = 110;
-        else if (insc.tipo_consumo === 'Sem Chopp') valor = 80;
-        else if (insc.tipo_consumo === 'Crianca Meia') valor = 40;
+        if (insc.consumo === 'Completo') valor = 110;
+        else if (insc.consumo === 'Sem Chopp') valor = 80;
+        else if (insc.consumo === 'Crianca Meia') valor = 40;
 
         const participanteData = {
             nome: insc.nome,
             telefone: insc.telefone,
-            categoria: insc.categoria,
-            posicao_campo: insc.posicao_campo,
-            tipo_consumo: insc.tipo_consumo,
-            modelo_camisa: insc.modelo_camisa || 'Jogador',
-            tam_camisa: insc.tam_camisa || 'M',
-            num_camisa: insc.num_camisa,
-            nome_camisa: insc.nome_camisa || '',
+            categoria: insc.time,
+            posicao_campo: insc.posicao,
+            tipo_consumo: insc.consumo,
+            modelo_camisa: insc.modeloCamisa || 'Jogador',
+            tam_camisa: insc.tamCamisa || 'M',
+            num_camisa: insc.numCamisa,
+            nome_camisa: insc.nomeCamisa || '',
             responsavel_id: null,
             valor_total: valor
         };
