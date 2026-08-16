@@ -42,12 +42,27 @@
     </div>
 
     <!-- Header -->
-    <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 shadow-lg">
+    <header class="sticky top-0 z-50 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 shadow-lg">
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
             <div class="w-full sm:w-auto flex justify-between items-center gap-2">
-                <div class="text-left">
-                    <h1 class="text-lg sm:text-xl font-bold tracking-tight text-white leading-tight">⚽ Solteiros & Casados <span class="text-emerald-400">2026</span></h1>
-                    <p class="text-[10px] sm:text-xs text-slate-400">20/12/26 • Guararapes</p>
+                <div class="flex items-center gap-2 text-left">
+                    <div class="relative">
+                        <button id="btn-menu" class="p-2 -ml-2 text-slate-300 hover:text-white rounded-lg transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                        </button>
+                        <div id="menu-dropdown" class="hidden absolute left-0 top-full mt-2 w-56 bg-slate-900 border border-slate-700 rounded-lg shadow-xl overflow-hidden divide-y divide-slate-800 z-50">
+                            <button class="tab-btn w-full text-left px-4 py-3 text-sm font-medium border-l-4 border-emerald-500 text-emerald-400 bg-slate-800/50 transition-colors" data-tab="inscricao">📝 Inscrição</button>
+                            <button class="tab-btn w-full text-left px-4 py-3 text-sm font-medium border-l-4 border-transparent text-slate-300 hover:bg-slate-800 transition-colors" data-tab="financeiro">💰 Churrasco (Financeiro)</button>
+                            <button class="tab-btn w-full text-left px-4 py-3 text-sm font-medium border-l-4 border-transparent text-slate-300 hover:bg-slate-800 transition-colors" data-tab="bolao">🎯 Bolão</button>
+                            <button class="tab-btn w-full text-left px-4 py-3 text-sm font-medium border-l-4 border-transparent text-slate-300 hover:bg-slate-800 transition-colors" data-tab="escalacao">⚽ Escalação</button>
+                            <button class="tab-btn w-full text-left px-4 py-3 text-sm font-medium border-l-4 border-transparent text-slate-300 hover:bg-slate-800 transition-colors" data-tab="camisas">👕 Camisas</button>
+                            <button class="tab-btn admin-only hidden w-full text-left px-4 py-3 text-sm font-medium border-l-4 border-transparent text-slate-300 hover:bg-slate-800 transition-colors" data-tab="caixa">🏦 Caixa</button>
+                        </div>
+                    </div>
+                    <div>
+                        <h1 class="text-lg sm:text-xl font-bold tracking-tight text-white leading-tight">⚽ Solteiros & Casados <span class="text-emerald-400">2026</span></h1>
+                        <p class="text-[10px] sm:text-xs text-slate-400">20/12/26 • Guararapes</p>
+                    </div>
                 </div>
                 <div id="countdown" class="sm:hidden flex gap-1 text-[10px] font-medium bg-slate-950/50 px-2 py-1 rounded border border-slate-800 countdown-pulse">
                     <!-- JS will fill mobile -->
@@ -69,71 +84,54 @@
         </div>
     </header>
 
-    <!-- Dashboard Section -->
-    <section id="dashboard" class="max-w-7xl mx-auto px-4 py-6 w-full space-y-4">
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm metric-card">
-                <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Inscritos</p>
-                <p id="metric-inscritos" class="text-2xl font-bold text-white">0</p>
-            </div>
-            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm metric-card">
-                <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Arrecadado</p>
-                <p id="metric-arrecadado" class="text-2xl font-bold text-emerald-400">R$ 0,00</p>
-            </div>
-            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm metric-card">
-                <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Pendente</p>
-                <p id="metric-pendente" class="text-2xl font-bold text-amber-400">R$ 0,00</p>
-            </div>
-            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm metric-card">
-                <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Saldo Caixa</p>
-                <p id="metric-saldo" class="text-2xl font-bold text-sky-400">R$ 0,00</p>
-            </div>
-            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm metric-card">
-                <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Camisas</p>
-                <p id="metric-camisas" class="text-2xl font-bold text-white">0</p>
-            </div>
-        </div>
 
-        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm">
-            <div class="flex justify-between items-end mb-2">
-                <h3 class="text-sm font-semibold text-white">Meta Coletiva</h3>
-                <span id="thermometer-values" class="text-xs text-slate-400 font-mono">R$ 0 / R$ 0</span>
-            </div>
-            <div class="relative h-4 bg-slate-800 rounded-full overflow-hidden">
-                <div id="thermometer-bar" class="absolute top-0 left-0 h-full bg-gradient-to-r from-emerald-600 to-emerald-400 thermometer-anim" style="width: 0%"></div>
-            </div>
-            <div class="flex justify-between items-start mt-2">
-                <span id="thermometer-percent" class="text-xs font-bold text-emerald-400">0%</span>
-                <span id="thermometer-discount" class="text-xs text-emerald-300 hidden px-2 py-0.5 bg-emerald-900/30 rounded-full">Desconto: R$ 0/pessoa</span>
-            </div>
-        </div>
-    </section>
-
-    <!-- Main Menu / Tabs -->
-    <div class="max-w-7xl mx-auto px-4 mt-2 mb-4 relative z-30 flex items-center justify-between">
-        <h2 id="current-tab-title" class="text-lg font-bold text-emerald-400">📝 Inscrição</h2>
-        
-        <div class="relative">
-            <button id="btn-menu" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white px-3 py-2 rounded-lg flex items-center gap-2 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-                <span class="hidden sm:inline">Menu</span>
-            </button>
-            <div id="menu-dropdown" class="hidden absolute right-0 top-full mt-2 w-56 bg-slate-900 border border-slate-700 rounded-lg shadow-xl overflow-hidden divide-y divide-slate-800">
-                <button class="tab-btn w-full text-left px-4 py-3 text-sm font-medium border-l-4 border-emerald-500 text-emerald-400 bg-slate-800/50 transition-colors" data-tab="inscricao">📝 Inscrição</button>
-                <button class="tab-btn w-full text-left px-4 py-3 text-sm font-medium border-l-4 border-transparent text-slate-300 hover:bg-slate-800 transition-colors" data-tab="financeiro">💰 Churrasco (Financeiro)</button>
-                <button class="tab-btn w-full text-left px-4 py-3 text-sm font-medium border-l-4 border-transparent text-slate-300 hover:bg-slate-800 transition-colors" data-tab="bolao">🎯 Bolão</button>
-                <button class="tab-btn w-full text-left px-4 py-3 text-sm font-medium border-l-4 border-transparent text-slate-300 hover:bg-slate-800 transition-colors" data-tab="escalacao">⚽ Escalação</button>
-                <button class="tab-btn w-full text-left px-4 py-3 text-sm font-medium border-l-4 border-transparent text-slate-300 hover:bg-slate-800 transition-colors" data-tab="camisas">👕 Camisas</button>
-                <button class="tab-btn admin-only hidden w-full text-left px-4 py-3 text-sm font-medium border-l-4 border-transparent text-slate-300 hover:bg-slate-800 transition-colors" data-tab="caixa">🏦 Caixa</button>
-            </div>
-        </div>
-    </div>
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 w-full flex-grow pb-10">
         
         <!-- Tab Financeiro -->
-        <div id="tab-financeiro" class="tab-content hidden anim-fade-in">
+        <div id="tab-financeiro" class="tab-content hidden anim-fade-in mt-4">
+            
+            <!-- Dashboard Metrics -->
+            <section id="dashboard" class="mb-6 space-y-4">
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm metric-card">
+                        <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Inscritos</p>
+                        <p id="metric-inscritos" class="text-2xl font-bold text-white">0</p>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm metric-card">
+                        <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Arrecadado</p>
+                        <p id="metric-arrecadado" class="text-2xl font-bold text-emerald-400">R$ 0,00</p>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm metric-card">
+                        <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Pendente</p>
+                        <p id="metric-pendente" class="text-2xl font-bold text-amber-400">R$ 0,00</p>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm metric-card">
+                        <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Saldo Caixa</p>
+                        <p id="metric-saldo" class="text-2xl font-bold text-sky-400">R$ 0,00</p>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm metric-card">
+                        <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Camisas</p>
+                        <p id="metric-camisas" class="text-2xl font-bold text-white">0</p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm">
+                    <div class="flex justify-between items-end mb-2">
+                        <h3 class="text-sm font-semibold text-white">Meta Coletiva</h3>
+                        <span id="thermometer-values" class="text-xs text-slate-400 font-mono">R$ 0 / R$ 0</span>
+                    </div>
+                    <div class="relative h-4 bg-slate-800 rounded-full overflow-hidden">
+                        <div id="thermometer-bar" class="absolute top-0 left-0 h-full bg-gradient-to-r from-emerald-600 to-emerald-400 thermometer-anim" style="width: 0%"></div>
+                    </div>
+                    <div class="flex justify-between items-start mt-2">
+                        <span id="thermometer-percent" class="text-xs font-bold text-emerald-400">0%</span>
+                        <span id="thermometer-discount" class="text-xs text-emerald-300 hidden px-2 py-0.5 bg-emerald-900/30 rounded-full">Desconto: R$ 0/pessoa</span>
+                    </div>
+                </div>
+            </section>
+
             <div class="flex flex-col sm:flex-row gap-3 mb-4">
                 <div class="relative flex-grow">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500">🔍</span>
