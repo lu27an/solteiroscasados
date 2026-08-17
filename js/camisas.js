@@ -14,8 +14,7 @@ window.Camisas = (function() {
         if (m.includes('polo')) return 'Polo';
         if (m.includes('baby')) return 'Baby Look';
         if (m.includes('infantil')) return 'Infantil';
-        if (m.includes('jogador')) return 'Jogador';
-        if (m.includes('tradicional')) return 'Tradicional';
+        // 'Jogador' e 'Tradicional' são o mesmo modelo
         return 'Tradicional';
     }
 
