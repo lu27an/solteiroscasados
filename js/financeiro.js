@@ -55,13 +55,17 @@ window.Financeiro = (function() {
             'Jogador Solteiro': '⚪',
             'Jogador Casado': '⚫',
             'Resenha': '🍻',
-            'Acompanhante': '👥'
+            'Acompanhante': '👥',
+            'Criança': '👶',
+            'Somente Camisa': '👕'
         };
 
         const consumoLabels = {
             'Completo': 'Com Chopp',
             'Sem Chopp': 'Sem Álcool',
-            'Crianca Meia': 'Criança'
+            'Crianca Meia': 'Criança (Grátis)',
+            'Criança': 'Criança (Grátis)',
+            'Somente Camisa': 'Somente Camisa'
         };
 
         filtered.forEach(p => {

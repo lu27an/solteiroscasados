@@ -207,9 +207,13 @@ window.App = (function() {
                 if (!tamSelect) return;
                 tamSelect.innerHTML = '';
                 let options = [];
-                if (val === 'Jogador' || val === 'Tradicional') options = ['PP', 'P', 'M', 'G', 'GG', 'XG'];
-                else if (val === 'Baby Look') options = ['BL-P', 'BL-M', 'BL-G', 'BL-GG'];
-                else if (val === 'Infantil') options = ['2', '4', '6', '8', '10', '12', '14', '16'];
+                if (val === 'Jogador' || val === 'Tradicional') {
+                    options = ['PP', 'P', 'M', 'G', 'GG', 'XGG', 'G1', 'G2', 'G3'];
+                } else if (val === 'Baby Look') {
+                    options = ['BL-P', 'BL-M', 'BL-G', 'BL-GG', 'BL-XGG'];
+                } else if (val === 'Infantil') {
+                    options = ['2', '4', '6', '8', '10', '12', '14', '16'];
+                }
                 options.forEach(opt => tamSelect.innerHTML += `<option value="${opt}">${opt}</option>`);
             });
         }
@@ -258,7 +262,19 @@ window.App = (function() {
                 let valor = 0;
                 if (consumo === 'Completo') valor = 110;
                 else if (consumo === 'Sem Chopp') valor = 80;
-                else if (consumo === 'Crianca Meia') valor = 40;
+                else if (consumo === 'Crianca Meia' || consumo === 'Criança' || consumo === 'Somente Camisa') valor = 0;
+
+                const modBase = document.getElementById('form-modelo').value;
+                let timeCamisa = 'Solteiros';
+                if (cat === 'Jogador Solteiro') timeCamisa = 'Solteiros';
+                else if (cat === 'Jogador Casado') timeCamisa = 'Casados';
+                else {
+                    const timeEl = document.getElementById('form-time-camisa');
+                    if (timeEl) timeCamisa = timeEl.value;
+                }
+                const modeloFormatado = `${modBase} - ${timeCamisa}`;
+                const tamCamisa = document.getElementById('form-tamanho').value;
+                const precoCamisa = window.Camisas ? Camisas.calcularPrecoCamisa(modeloFormatado, tamCamisa) : 0;
 
                 const data = {
                     nome: document.getElementById('form-nome').value,
@@ -266,17 +282,20 @@ window.App = (function() {
                     categoria: cat,
                     posicao_campo: document.getElementById('form-posicao').value,
                     tipo_consumo: consumo,
-                    modelo_camisa: document.getElementById('form-modelo').value,
-                    tam_camisa: document.getElementById('form-tamanho').value,
+                    modelo_camisa: modeloFormatado,
+                    tam_camisa: tamCamisa,
                     num_camisa: document.getElementById('form-numero').value ? parseInt(document.getElementById('form-numero').value) : null,
                     nome_camisa: document.getElementById('form-nome-camisa').value.toUpperCase(),
                     responsavel_id: cat === 'Acompanhante' && document.getElementById('form-responsavel').value ? parseInt(document.getElementById('form-responsavel').value) : null,
-                    valor_total: valor
+                    valor_total: valor,
+                    valor_camisa: precoCamisa
                 };
 
                 if (id) {
                     await DB.participantes.update(parseInt(id), data);
                 } else {
+                    data.valor_pago = 0;
+                    data.camisa_pago = 0;
                     await DB.participantes.create(data);
                 }
 
@@ -351,9 +370,17 @@ window.App = (function() {
         if (p.responsavel_id) document.getElementById('form-responsavel').value = p.responsavel_id;
         document.getElementById('form-posicao').value = p.posicao_campo;
         document.getElementById('form-consumo').value = p.tipo_consumo;
-        document.getElementById('form-modelo').value = p.modelo_camisa;
+
+        const modBase = window.Camisas ? Camisas.getModeloBase(p.modelo_camisa) : (p.modelo_camisa || 'Tradicional');
+        document.getElementById('form-modelo').value = modBase;
         document.getElementById('form-modelo').dispatchEvent(new Event('change'));
         document.getElementById('form-tamanho').value = p.tam_camisa;
+
+        const timeCamisaEl = document.getElementById('form-time-camisa');
+        if (timeCamisaEl) {
+            timeCamisaEl.value = window.Camisas ? Camisas.getTimeCamisa(p) : 'Solteiros';
+        }
+
         document.getElementById('form-numero').value = p.num_camisa || '';
         document.getElementById('form-nome-camisa').value = p.nome_camisa || '';
         
@@ -518,8 +545,10 @@ window.App = (function() {
             if (state.isAdmin) el.classList.remove('hidden');
             else el.classList.add('hidden');
         });
+        if (window.Dashboard) Dashboard.render(state);
         if (window.Financeiro) Financeiro.render(state);
         if (window.Escalacao) Escalacao.render(state);
+        if (window.Camisas) Camisas.render(state);
         if (window.Caixa) Caixa.render(state);
     }
 

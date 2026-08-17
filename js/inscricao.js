@@ -8,24 +8,81 @@ window.Inscricao = (function() {
         const camisaFields = document.getElementById('insc-camisa-fields');
         const posGroup = document.getElementById('insc-posicao-group');
         const timeCamisaGroup = document.getElementById('insc-time-camisa-container');
+        const modeloSelect = document.getElementById('insc-modelo');
+        const tamSelect = document.getElementById('insc-tamanho');
+        const consumoSelect = document.getElementById('insc-consumo');
 
-        // Toggle position field based on team
+        // Dynamic sizes based on model
+        if (modeloSelect && tamSelect) {
+            modeloSelect.addEventListener('change', () => {
+                const val = modeloSelect.value;
+                tamSelect.innerHTML = '';
+                let options = [];
+                if (val === 'Jogador' || val === 'Tradicional') {
+                    options = [
+                        { val: 'PP', label: 'PP' },
+                        { val: 'P', label: 'P' },
+                        { val: 'M', label: 'M' },
+                        { val: 'G', label: 'G' },
+                        { val: 'GG', label: 'GG' },
+                        { val: 'XGG', label: 'XGG (+R$ 10)' },
+                        { val: 'G1', label: 'G1 (+R$ 10)' },
+                        { val: 'G2', label: 'G2 (+R$ 10)' },
+                        { val: 'G3', label: 'G3 (+R$ 10)' }
+                    ];
+                } else if (val === 'Baby Look') {
+                    options = [
+                        { val: 'BL-P', label: 'BL-P' },
+                        { val: 'BL-M', label: 'BL-M' },
+                        { val: 'BL-G', label: 'BL-G' },
+                        { val: 'BL-GG', label: 'BL-GG' },
+                        { val: 'BL-XGG', label: 'BL-XGG (+R$ 10)' }
+                    ];
+                } else if (val === 'Infantil') {
+                    options = [
+                        { val: '2', label: '2' },
+                        { val: '4', label: '4' },
+                        { val: '6', label: '6' },
+                        { val: '8', label: '8' },
+                        { val: '10', label: '10' },
+                        { val: '12', label: '12' },
+                        { val: '14', label: '14' },
+                        { val: '16', label: '16' }
+                    ];
+                }
+                options.forEach(opt => {
+                    tamSelect.innerHTML += `<option value="${opt.val}">${opt.label}</option>`;
+                });
+            });
+        }
+
+        // Toggle position field & shirt based on participation type
         if (timeSelect) {
             timeSelect.addEventListener('change', () => {
-                if (timeSelect.value === 'Resenha') {
+                const val = timeSelect.value;
+                if (val === 'Somente Camisa') {
                     if (posGroup) posGroup.classList.add('hidden');
-                    // Resenha can opt out of shirt
+                    if (querCamisa) {
+                        querCamisa.checked = true;
+                        querCamisa.disabled = true;
+                    }
+                    if (camisaFields) camisaFields.classList.remove('hidden');
+                    if (timeCamisaGroup) timeCamisaGroup.classList.remove('hidden');
+                    if (consumoSelect) consumoSelect.value = 'Somente Camisa';
+                } else if (val === 'Resenha') {
+                    if (posGroup) posGroup.classList.add('hidden');
                     if (querCamisa) querCamisa.disabled = false;
                     if (timeCamisaGroup) timeCamisaGroup.classList.remove('hidden');
+                    if (consumoSelect && consumoSelect.value === 'Somente Camisa') consumoSelect.value = 'Completo';
                 } else {
                     if (posGroup) posGroup.classList.remove('hidden');
-                    // Jogadores MUST have shirt
                     if (querCamisa) {
                         querCamisa.checked = true;
                         querCamisa.disabled = true;
                     }
                     if (camisaFields) camisaFields.classList.remove('hidden');
                     if (timeCamisaGroup) timeCamisaGroup.classList.add('hidden');
+                    if (consumoSelect && consumoSelect.value === 'Somente Camisa') consumoSelect.value = 'Completo';
                 }
             });
         }
@@ -47,7 +104,7 @@ window.Inscricao = (function() {
                 const nome = document.getElementById('insc-nome').value.trim();
                 const telefone = document.getElementById('insc-telefone').value.trim();
                 const time = document.getElementById('insc-time').value;
-                const posicao = time === 'Resenha' ? 'Nao Joga' : document.getElementById('insc-posicao').value;
+                const posicao = (time === 'Resenha' || time === 'Somente Camisa') ? 'Nao Joga' : document.getElementById('insc-posicao').value;
                 const consumo = document.getElementById('insc-consumo').value;
                 const wantShirt = document.getElementById('insc-quer-camisa').checked;
 
@@ -56,9 +113,9 @@ window.Inscricao = (function() {
                     return;
                 }
 
-                // Force shirt for players
-                if (time !== 'Resenha' && !wantShirt) {
-                    if (window.App) App.showToast('Jogadores precisam ter camisa!');
+                // Force shirt for players and Somente Camisa
+                if ((time === 'Jogador Solteiro' || time === 'Jogador Casado' || time === 'Somente Camisa') && !wantShirt) {
+                    if (window.App) App.showToast('Esta modalidade precisa ter camisa!');
                     return;
                 }
 
@@ -68,6 +125,19 @@ window.Inscricao = (function() {
                     btnSubmit.textContent = 'Enviando...';
                 }
 
+                // Format standardized shirt model: Modelo - Time
+                let modeloFormatado = null;
+                if (wantShirt) {
+                    const modBase = document.getElementById('insc-modelo').value;
+                    let timeCamisa = 'Solteiros';
+                    if (time === 'Jogador Solteiro') timeCamisa = 'Solteiros';
+                    else if (time === 'Jogador Casado') timeCamisa = 'Casados';
+                    else {
+                        timeCamisa = document.getElementById('insc-time-camisa').value;
+                    }
+                    modeloFormatado = `${modBase} - ${timeCamisa}`;
+                }
+
                 const inscricao = {
                     nome,
                     telefone,
@@ -75,7 +145,7 @@ window.Inscricao = (function() {
                     posicao_campo: posicao,
                     tipo_consumo: consumo,
                     quer_camisa: wantShirt,
-                    modelo_camisa: wantShirt ? (time === 'Resenha' ? `${document.getElementById('insc-modelo').value} - ${document.getElementById('insc-time-camisa').value}` : document.getElementById('insc-modelo').value) : null,
+                    modelo_camisa: modeloFormatado,
                     tam_camisa: wantShirt ? document.getElementById('insc-tamanho').value : null,
                     num_camisa: wantShirt && document.getElementById('insc-numero').value ? parseInt(document.getElementById('insc-numero').value) : null,
                     nome_camisa: wantShirt ? (document.getElementById('insc-nome-camisa').value || '').toUpperCase() : null,
@@ -140,11 +210,19 @@ window.Inscricao = (function() {
         const insc = list.find(i => i.id == id);
         if (!insc) return;
 
-        // Calculate valor
-        let valor = 0;
-        if (insc.tipo_consumo === 'Completo') valor = 110;
-        else if (insc.tipo_consumo === 'Sem Chopp') valor = 80;
-        else if (insc.tipo_consumo === 'Crianca Meia') valor = 40;
+        // Calculate valor do churrasco (Crianças e Somente Camisa = 0)
+        let valorChurrasco = 0;
+        if (insc.tipo_consumo === 'Completo') valorChurrasco = 110;
+        else if (insc.tipo_consumo === 'Sem Chopp') valorChurrasco = 80;
+        else if (insc.tipo_consumo === 'Crianca Meia' || insc.tipo_consumo === 'Criança' || insc.tipo_consumo === 'Somente Camisa') {
+            valorChurrasco = 0;
+        }
+
+        // Calculate camisa price if requested
+        let precoCamisa = 0;
+        if (insc.quer_camisa && insc.modelo_camisa && window.Camisas) {
+            precoCamisa = Camisas.calcularPrecoCamisa(insc.modelo_camisa, insc.tam_camisa);
+        }
 
         const participanteData = {
             nome: insc.nome,
@@ -152,17 +230,19 @@ window.Inscricao = (function() {
             categoria: insc.categoria,
             posicao_campo: insc.posicao_campo,
             tipo_consumo: insc.tipo_consumo,
-            modelo_camisa: insc.modelo_camisa || (insc.quer_camisa ? 'Jogador' : null),
+            modelo_camisa: insc.modelo_camisa || (insc.quer_camisa ? 'Tradicional' : null),
             tam_camisa: insc.tam_camisa || (insc.quer_camisa ? 'M' : null),
             num_camisa: insc.num_camisa,
             nome_camisa: insc.nome_camisa || '',
             responsavel_id: null,
-            valor_total: valor
+            valor_total: valorChurrasco,
+            valor_pago: 0,
+            valor_camisa: precoCamisa,
+            camisa_pago: 0
         };
 
         try {
-            const created = await DB.participantes.create(participanteData);
-            await DB.parcelas.createForParticipante(created.id, valor);
+            await DB.participantes.create(participanteData);
 
             // Mark as approved in DB
             if (window.DB && DB.inscricoes) {

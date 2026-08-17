@@ -134,3 +134,9 @@ SET valor_pago = COALESCE((
   WHERE parc.participante_id = p.id AND parc.pago = true
 ), 0)
 WHERE valor_pago = 0 OR valor_pago IS NULL;
+
+-- Atualizar valor_total para R$ 0,00 de crianças (churrasco grátis)
+UPDATE public.participantes
+SET valor_total = 0
+WHERE tipo_consumo IN ('Crianca Meia', 'Criança', 'Crianca') OR categoria = 'Criança';
+
