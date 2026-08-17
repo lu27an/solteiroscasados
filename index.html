@@ -52,12 +52,11 @@
                         </button>
                         <div id="menu-dropdown" class="hidden absolute left-0 top-full mt-2 w-56 bg-slate-900 border border-slate-700 rounded-lg shadow-xl overflow-hidden divide-y divide-slate-800 z-50">
                             <button class="tab-btn w-full text-left px-4 py-3 text-sm font-medium border-l-4 border-emerald-500 text-emerald-400 bg-slate-800/50 transition-colors" data-tab="inscricao">📝 Inscrição</button>
-                            <button class="tab-btn w-full text-left px-4 py-3 text-sm font-medium border-l-4 border-transparent text-slate-300 hover:bg-slate-800 transition-colors" data-tab="dashboard">📊 Dashboard</button>
                             <button class="tab-btn w-full text-left px-4 py-3 text-sm font-medium border-l-4 border-transparent text-slate-300 hover:bg-slate-800 transition-colors" data-tab="financeiro">💰 Churrasco (Financeiro)</button>
                             <button class="tab-btn w-full text-left px-4 py-3 text-sm font-medium border-l-4 border-transparent text-slate-300 hover:bg-slate-800 transition-colors" data-tab="bolao">🎯 Bolão</button>
                             <button class="tab-btn w-full text-left px-4 py-3 text-sm font-medium border-l-4 border-transparent text-slate-300 hover:bg-slate-800 transition-colors" data-tab="escalacao">⚽ Escalação</button>
                             <button class="tab-btn w-full text-left px-4 py-3 text-sm font-medium border-l-4 border-transparent text-slate-300 hover:bg-slate-800 transition-colors" data-tab="camisas">👕 Camisas</button>
-                            <button class="tab-btn admin-only hidden w-full text-left px-4 py-3 text-sm font-medium border-l-4 border-transparent text-slate-300 hover:bg-slate-800 transition-colors" data-tab="caixa">🏦 Caixa</button>
+                            <button class="tab-btn admin-only hidden w-full text-left px-4 py-3 text-sm font-medium border-l-4 border-transparent text-slate-300 hover:bg-slate-800 transition-colors" data-tab="dashboard">📊 Dashboard (Admin)</button>
                         </div>
                     </div>
                     <div>
@@ -299,40 +298,6 @@
                 </div>
             </section>
 
-            <!-- Transparência: O que está incluso no churrasco -->
-            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 mb-6 shadow-sm">
-                <h3 class="text-sm font-bold text-white mb-2 flex items-center gap-2">
-                    📋 Transparência: O que está incluso no valor do Churrasco?
-                </h3>
-                <p class="text-xs text-slate-400 mb-3">Toda a arrecadação do evento é 100% revertida para a estrutura e confraternização dos participantes:</p>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 text-xs text-slate-300">
-                    <div class="flex items-start gap-2 bg-slate-950/50 p-2.5 rounded-lg border border-slate-800/80">
-                        <span>🍻</span>
-                        <div><strong class="text-white">Chopp à Vontade:</strong> Incluso para quem optou por Completo.</div>
-                    </div>
-                    <div class="flex items-start gap-2 bg-slate-950/50 p-2.5 rounded-lg border border-slate-800/80">
-                        <span>🥩</span>
-                        <div><strong class="text-white">Churrasco Completo:</strong> Carnes bovinas de primeira, linguiça, pão de alho e guarnições.</div>
-                    </div>
-                    <div class="flex items-start gap-2 bg-slate-950/50 p-2.5 rounded-lg border border-slate-800/80">
-                        <span>🏠</span>
-                        <div><strong class="text-white">Espaço & Estrutura:</strong> Salão de festas privativo, mesas, cadeiras, carvão e gelo.</div>
-                    </div>
-                    <div class="flex items-start gap-2 bg-slate-950/50 p-2.5 rounded-lg border border-slate-800/80">
-                        <span>🎵</span>
-                        <div><strong class="text-white">Pagode ao Vivo:</strong> Atração musical ao vivo para animar a confraternização.</div>
-                    </div>
-                    <div class="flex items-start gap-2 bg-slate-950/50 p-2.5 rounded-lg border border-slate-800/80">
-                        <span>⚽</span>
-                        <div><strong class="text-white">Campo & Futebol:</strong> Locação do campo society, bolas oficiais e arbitragem.</div>
-                    </div>
-                    <div class="flex items-start gap-2 bg-slate-950/50 p-2.5 rounded-lg border border-slate-800/80">
-                        <span>👶</span>
-                        <div><strong class="text-white">Crianças Grátis:</strong> Crianças até 14 anos não pagam o churrasco.</div>
-                    </div>
-                </div>
-            </div>
-
             <div class="flex flex-col sm:flex-row gap-3 mb-4">
                 <div class="relative flex-grow">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500">🔍</span>
@@ -365,6 +330,75 @@
                             <!-- JS filled -->
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- Prestação de Contas & Despesas Reais do Churrasco (Caixa) -->
+            <div class="mt-8 space-y-4">
+                <div class="border-t border-slate-800 pt-6">
+                    <h3 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                        🧾 Prestação de Contas & Despesas do Churrasco
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-0.5">Transparência total do evento: acompanhe em tempo real todas as saídas e gastos registrados.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="bg-slate-900 border border-emerald-900/50 rounded-xl p-3.5 shadow-sm relative overflow-hidden">
+                        <div class="absolute right-0 top-0 w-16 h-16 bg-emerald-500/10 rounded-bl-full"></div>
+                        <p class="text-[11px] text-slate-400 font-medium uppercase tracking-wider mb-0.5">Arrecadação Churrasco</p>
+                        <p id="caixa-entradas" class="text-xl font-bold text-emerald-400">R$ 0,00</p>
+                    </div>
+                    <div class="bg-slate-900 border border-rose-900/50 rounded-xl p-3.5 shadow-sm relative overflow-hidden">
+                        <div class="absolute right-0 top-0 w-16 h-16 bg-rose-500/10 rounded-bl-full"></div>
+                        <p class="text-[11px] text-slate-400 font-medium uppercase tracking-wider mb-0.5">Despesas Pagas</p>
+                        <p id="caixa-saidas" class="text-xl font-bold text-rose-400">R$ 0,00</p>
+                    </div>
+                    <div class="bg-slate-900 border border-sky-900/50 rounded-xl p-3.5 shadow-sm relative overflow-hidden">
+                        <div class="absolute right-0 top-0 w-16 h-16 bg-sky-500/10 rounded-bl-full"></div>
+                        <p class="text-[11px] text-slate-400 font-medium uppercase tracking-wider mb-0.5">Saldo em Caixa</p>
+                        <p id="caixa-saldo" class="text-xl font-bold text-sky-400">R$ 0,00</p>
+                    </div>
+                </div>
+
+                <!-- Formulário Registrar Despesa (Exclusivo Admin) -->
+                <div class="admin-only hidden bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm">
+                    <h4 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                        ➕ Registrar Nova Despesa (Admin)
+                    </h4>
+                    <form id="caixa-form" class="flex flex-col sm:flex-row gap-3">
+                        <input type="text" id="despesa-descricao" required placeholder="Descrição da despesa (ex: 2 Barris de Chopp, Salão, etc)..." class="flex-grow bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none">
+                        <select id="despesa-categoria" class="sm:w-40 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none">
+                            <option value="Salão">Salão</option>
+                            <option value="Pagode">Pagode</option>
+                            <option value="Chopp">Chopp</option>
+                            <option value="Açougue">Açougue</option>
+                            <option value="Camisas">Camisas</option>
+                            <option value="Carvão/Gelo">Carvão/Gelo</option>
+                            <option value="Outros" selected>Outros</option>
+                        </select>
+                        <input type="number" id="despesa-valor" required step="0.01" min="0.01" placeholder="R$ 0,00" class="sm:w-32 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none">
+                        <button type="submit" class="bg-rose-600 hover:bg-rose-500 text-white font-medium py-2 px-4 rounded-lg text-sm transition-colors whitespace-nowrap">+ Adicionar</button>
+                    </form>
+                </div>
+
+                <!-- Tabela de Despesas Reais (Pública para todos verem) -->
+                <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
+                    <div class="overflow-x-auto table-responsive">
+                        <table class="w-full text-left text-sm whitespace-nowrap">
+                            <thead class="bg-slate-800/50 text-slate-300 font-semibold border-b border-slate-700">
+                                <tr>
+                                    <th class="px-4 py-3">Despesa / Item</th>
+                                    <th class="px-4 py-3 text-center">Categoria</th>
+                                    <th class="px-4 py-3 text-right">Valor</th>
+                                    <th class="px-4 py-3 text-center">Status</th>
+                                    <th class="px-4 py-3 text-center admin-only hidden">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="despesas-tbody" class="divide-y divide-slate-800/50">
+                                <!-- JS filled -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -671,65 +705,7 @@
             </div>
         </div>
 
-        <!-- Tab Caixa -->
-        <div id="tab-caixa" class="tab-content hidden anim-fade-in">
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div class="bg-slate-900 border border-emerald-900/50 rounded-xl p-4 shadow-sm relative overflow-hidden">
-                    <div class="absolute right-0 top-0 w-16 h-16 bg-emerald-500/10 rounded-bl-full"></div>
-                    <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Entradas</p>
-                    <p id="caixa-entradas" class="text-2xl font-bold text-emerald-400">R$ 0,00</p>
-                </div>
-                <div class="bg-slate-900 border border-rose-900/50 rounded-xl p-4 shadow-sm relative overflow-hidden">
-                    <div class="absolute right-0 top-0 w-16 h-16 bg-rose-500/10 rounded-bl-full"></div>
-                    <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Saídas</p>
-                    <p id="caixa-saidas" class="text-2xl font-bold text-rose-400">R$ 0,00</p>
-                </div>
-                <div class="bg-slate-900 border border-sky-900/50 rounded-xl p-4 shadow-sm relative overflow-hidden">
-                    <div class="absolute right-0 top-0 w-16 h-16 bg-sky-500/10 rounded-bl-full"></div>
-                    <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Saldo</p>
-                    <p id="caixa-saldo" class="text-2xl font-bold text-sky-400">R$ 0,00</p>
-                </div>
-            </div>
 
-            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 mb-6 shadow-sm">
-                <h3 class="font-semibold text-white mb-3">Registrar Despesa</h3>
-                <form id="caixa-form" class="flex flex-col sm:flex-row gap-3">
-                    <input type="text" id="despesa-descricao" required placeholder="Descrição..." class="flex-grow bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none">
-                    <select id="despesa-categoria" class="sm:w-40 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none">
-                        <option value="Salão">Salão</option>
-                        <option value="Pagode">Pagode</option>
-                        <option value="Chopp">Chopp</option>
-                        <option value="Açougue">Açougue</option>
-                        <option value="Camisas">Camisas</option>
-                        <option value="Carvão/Gelo">Carvão/Gelo</option>
-                        <option value="Outros" selected>Outros</option>
-                    </select>
-                    <input type="number" id="despesa-valor" required step="0.01" min="0.01" placeholder="R$ 0,00" class="sm:w-32 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none">
-                    <button type="submit" class="bg-rose-600 hover:bg-rose-500 text-white font-medium py-2 px-4 rounded-lg text-sm transition-colors whitespace-nowrap">Add Despesa</button>
-                </form>
-            </div>
-
-            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
-                <div class="overflow-x-auto table-responsive">
-                    <table class="w-full text-left text-sm whitespace-nowrap">
-                        <thead class="bg-slate-800/50 text-slate-300 font-semibold border-b border-slate-700">
-                            <tr>
-                                <th class="px-4 py-3">Despesa</th>
-                                <th class="px-4 py-3">Categoria</th>
-                                <th class="px-4 py-3 text-right">Valor</th>
-                                <th class="px-4 py-3 text-center">Status</th>
-                                <th class="px-4 py-3 text-center">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="despesas-tbody" class="divide-y divide-slate-800/50">
-                            <!-- JS filled -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-        </div>
 
     </main>
 

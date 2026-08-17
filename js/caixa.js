@@ -27,6 +27,8 @@ window.Caixa = (function() {
         const tbody = document.getElementById('despesas-tbody');
         if (tbody) {
             tbody.addEventListener('click', async (e) => {
+                if (!window.App || !window.App.state || !window.App.state.isAdmin) return;
+                
                 const btnToggle = e.target.closest('.btn-toggle-despesa');
                 if (btnToggle) {
                     const id = btnToggle.dataset.id;

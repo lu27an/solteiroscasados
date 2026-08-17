@@ -111,6 +111,12 @@ window.App = (function() {
                     btnAdminToggle.innerHTML = '🔒 Admin';
                     updateAdminVisibility();
                     showToast('Modo admin desativado');
+
+                    const activeTabBtn = document.querySelector('.tab-btn.border-emerald-500');
+                    if (activeTabBtn && activeTabBtn.dataset.tab === 'dashboard') {
+                        const finBtn = document.querySelector('.tab-btn[data-tab="financeiro"]');
+                        if (finBtn) finBtn.click();
+                    }
                 } else {
                     openModal('modal-admin');
                 }
