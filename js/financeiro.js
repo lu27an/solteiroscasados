@@ -126,8 +126,7 @@ window.Financeiro = (function() {
                 <td class="text-center px-3 py-3 admin-only ${adminClass}">
                     <div class="flex gap-1 justify-center">
                         <button class="btn-edit" data-id="${p.id}" title="Editar">✏️</button>
-                        <button class="btn-pix" data-id="${p.id}" title="PIX">💠</button>
-                        <button class="btn-whatsapp" data-id="${p.id}" title="WhatsApp">📱</button>
+                        <button class="btn-whatsapp" data-id="${p.id}" title="Cobrança WhatsApp">📱</button>
                         <button class="btn-delete" data-id="${p.id}" title="Excluir">🗑️</button>
                     </div>
                 </td>

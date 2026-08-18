@@ -264,11 +264,12 @@ window.App = (function() {
                     }
                 }
 
-                const consumo = document.getElementById('form-consumo').value;
-                let valor = 0;
-                if (consumo === 'Completo') valor = 110;
+                let consumo = document.getElementById('form-consumo').value;
+                if (cat === 'Somente Camisa') consumo = 'Somente Camisa';
+
+                let valor = 110;
+                if (cat === 'Criança' || cat === 'Somente Camisa' || consumo === 'Crianca Meia' || consumo === 'Somente Camisa') valor = 0;
                 else if (consumo === 'Sem Chopp') valor = 80;
-                else if (consumo === 'Crianca Meia' || consumo === 'Criança' || consumo === 'Somente Camisa') valor = 0;
 
                 const modBase = document.getElementById('form-modelo').value;
                 let timeCamisa = 'Solteiros';
@@ -315,7 +316,6 @@ window.App = (function() {
         if (tbody) {
             tbody.addEventListener('click', (e) => {
                 if (e.target.classList.contains('btn-edit')) editParticipante(e.target.dataset.id);
-                if (e.target.classList.contains('btn-pix')) showPIX(e.target.dataset.id);
                 if (e.target.classList.contains('btn-whatsapp')) sendWhatsApp(e.target.dataset.id);
                 if (e.target.classList.contains('btn-delete')) confirmDelete(e.target.dataset.id);
                 
@@ -375,7 +375,9 @@ window.App = (function() {
         document.getElementById('form-categoria').dispatchEvent(new Event('change'));
         if (p.responsavel_id) document.getElementById('form-responsavel').value = p.responsavel_id;
         document.getElementById('form-posicao').value = p.posicao_campo;
-        document.getElementById('form-consumo').value = p.tipo_consumo;
+        if (p.tipo_consumo && p.tipo_consumo !== 'Somente Camisa') {
+            document.getElementById('form-consumo').value = p.tipo_consumo;
+        }
 
         const modBase = window.Camisas ? Camisas.getModeloBase(p.modelo_camisa) : (p.modelo_camisa || 'Tradicional');
         document.getElementById('form-modelo').value = modBase;

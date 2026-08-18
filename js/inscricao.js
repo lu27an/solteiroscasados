@@ -57,32 +57,33 @@ window.Inscricao = (function() {
         }
 
         // Toggle position field & shirt based on participation type
+        const consumoGroup = document.getElementById('insc-consumo-group');
         if (timeSelect) {
             timeSelect.addEventListener('change', () => {
                 const val = timeSelect.value;
                 if (val === 'Somente Camisa') {
                     if (posGroup) posGroup.classList.add('hidden');
+                    if (consumoGroup) consumoGroup.classList.add('hidden');
                     if (querCamisa) {
                         querCamisa.checked = true;
                         querCamisa.disabled = true;
                     }
                     if (camisaFields) camisaFields.classList.remove('hidden');
                     if (timeCamisaGroup) timeCamisaGroup.classList.remove('hidden');
-                    if (consumoSelect) consumoSelect.value = 'Somente Camisa';
                 } else if (val === 'Resenha') {
                     if (posGroup) posGroup.classList.add('hidden');
+                    if (consumoGroup) consumoGroup.classList.remove('hidden');
                     if (querCamisa) querCamisa.disabled = false;
                     if (timeCamisaGroup) timeCamisaGroup.classList.remove('hidden');
-                    if (consumoSelect && consumoSelect.value === 'Somente Camisa') consumoSelect.value = 'Completo';
                 } else {
                     if (posGroup) posGroup.classList.remove('hidden');
+                    if (consumoGroup) consumoGroup.classList.remove('hidden');
                     if (querCamisa) {
                         querCamisa.checked = true;
                         querCamisa.disabled = true;
                     }
                     if (camisaFields) camisaFields.classList.remove('hidden');
                     if (timeCamisaGroup) timeCamisaGroup.classList.add('hidden');
-                    if (consumoSelect && consumoSelect.value === 'Somente Camisa') consumoSelect.value = 'Completo';
                 }
             });
         }
@@ -105,7 +106,7 @@ window.Inscricao = (function() {
                 const telefone = document.getElementById('insc-telefone').value.trim();
                 const time = document.getElementById('insc-time').value;
                 const posicao = (time === 'Resenha' || time === 'Somente Camisa') ? 'Nao Joga' : document.getElementById('insc-posicao').value;
-                const consumo = document.getElementById('insc-consumo').value;
+                const consumo = (time === 'Somente Camisa') ? 'Somente Camisa' : document.getElementById('insc-consumo').value;
                 const wantShirt = document.getElementById('insc-quer-camisa').checked;
 
                 if (!nome || !telefone) {
