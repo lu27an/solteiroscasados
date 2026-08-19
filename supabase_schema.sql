@@ -140,3 +140,9 @@ UPDATE public.participantes
 SET valor_total = 0
 WHERE tipo_consumo IN ('Crianca Meia', 'Criança', 'Crianca') OR categoria = 'Criança';
 
+-- Permitir repetição de números de camisa (remover índices únicos caso existam)
+DROP INDEX IF EXISTS idx_num_camisa_solteiro;
+DROP INDEX IF EXISTS idx_num_camisa_casado;
+DROP INDEX IF EXISTS public.idx_num_camisa_solteiro;
+DROP INDEX IF EXISTS public.idx_num_camisa_casado;
+

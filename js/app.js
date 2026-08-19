@@ -224,45 +224,13 @@ window.App = (function() {
             });
         }
 
-        const formNumero = document.getElementById('form-numero');
-        if (formNumero) {
-            const checkDupe = () => {
-                const num = formNumero.value;
-                const cat = document.getElementById('form-categoria').value;
-                const id = document.getElementById('form-id').value;
-                const err = document.getElementById('form-numero-error');
-                if (!num || !err) return false;
-                
-                if (cat === 'Jogador Solteiro' || cat === 'Jogador Casado') {
-                    const dupe = state.participantes.find(p => p.num_camisa == num && p.categoria === cat && p.id != id);
-                    if (dupe) {
-                        err.classList.remove('hidden');
-                        return true;
-                    }
-                }
-                err.classList.add('hidden');
-                return false;
-            };
-            formNumero.addEventListener('blur', checkDupe);
-            formNumero.addEventListener('input', checkDupe);
-        }
-
         const formCadastro = document.getElementById('form-cadastro');
         if (formCadastro) {
             formCadastro.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 
-                const num = document.getElementById('form-numero').value;
                 const cat = document.getElementById('form-categoria').value;
                 const id = document.getElementById('form-id').value;
-                if (num && (cat === 'Jogador Solteiro' || cat === 'Jogador Casado')) {
-                    const dupe = state.participantes.find(p => p.num_camisa == num && p.categoria === cat && p.id != id);
-                    if (dupe) {
-                        const err = document.getElementById('form-numero-error');
-                        if (err) err.classList.remove('hidden');
-                        return;
-                    }
-                }
 
                 let consumo = document.getElementById('form-consumo').value;
                 if (cat === 'Somente Camisa') consumo = 'Somente Camisa';
