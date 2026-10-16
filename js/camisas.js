@@ -1,32 +1,22 @@
 window.Camisas = (function() {
-    // Tabela de preços de camisa
-    const PRECOS = {
-        'Jogador':     { base: 50, extra: 60 },
-        'Tradicional': { base: 50, extra: 60 },
-        'Polo':        { base: 65, extra: 75 },
-        'Baby Look':   { base: 50, extra: 60 },
-        'Infantil':    { base: 40, extra: 40 }
-    };
-
     function getModeloBase(modelo) {
         if (!modelo) return 'Tradicional';
         const m = modelo.toLowerCase().trim();
-        if (m.includes('polo')) return 'Polo';
         if (m.includes('baby')) return 'Baby Look';
         if (m.includes('infantil')) return 'Infantil';
-        // 'Jogador' e 'Tradicional' são o mesmo modelo
         return 'Tradicional';
     }
 
     function getTimeCamisa(p) {
-        if (p.modelo_camisa) {
-            const m = p.modelo_camisa.toLowerCase();
-            if (m.includes('casado')) return 'Casados';
-            if (m.includes('solteiro')) return 'Solteiros';
+        if (!p) return 'Solteiros';
+        const m = (p.modelo_camisa || '').toLowerCase();
+        const isGol = m.includes('goleiro') || p.posicao_campo === 'Goleiro';
+        const isCasado = m.includes('casado') || p.categoria === 'Jogador Casado';
+
+        if (isGol) {
+            return isCasado ? 'Goleiro Casados' : 'Goleiro Solteiros';
         }
-        if (p.categoria === 'Jogador Casado') return 'Casados';
-        if (p.categoria === 'Jogador Solteiro') return 'Solteiros';
-        return 'Solteiros';
+        return isCasado ? 'Casados' : 'Solteiros';
     }
 
     function isTamanhoExtra(tamanho) {
@@ -35,12 +25,20 @@ window.Camisas = (function() {
         return ['XG', 'XGG', 'XXG', 'XXXG', '3XG', '4XG', 'EG', 'EGG', 'G1', 'G2', 'G3', 'G4', 'EXG'].includes(t) || t.includes('XG') || t.includes('EGG');
     }
 
-    function calcularPrecoCamisa(modelo, tamanho) {
-        if (!modelo && !tamanho) return 0;
-        const modBase = getModeloBase(modelo);
-        const precos = PRECOS[modBase] || PRECOS['Tradicional'];
-        const isExtra = isTamanhoExtra(tamanho);
-        return isExtra ? precos.extra : precos.base;
+    // Nova tabela de preços: Solteiros (Polo) = R$ 75,00 | Casados = R$ 60,00
+    function calcularPrecoCamisa(modelo, tamanho, p = null) {
+        const hasMod = modelo || (p && p.modelo_camisa);
+        const hasTam = tamanho || (p && p.tam_camisa);
+        if (!hasMod && !hasTam) return 0;
+
+        let time = 'Solteiros';
+        if (p) {
+            time = getTimeCamisa(p);
+        } else if (modelo) {
+            const m = String(modelo).toLowerCase();
+            if (m.includes('casado')) time = 'Casados';
+        }
+        return (time === 'Casados' || time === 'Goleiro Casados') ? 60 : 75;
     }
 
     function init() {
@@ -72,11 +70,17 @@ window.Camisas = (function() {
 
         const formatBRL = (val) => val.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
 
-        // Separate models by team: Solteiros and Casados
+        // Separate models by 4 categories: Solteiros, Goleiro Solteiros, Casados, Goleiro Casados
         let totalizadorSolteiros = {};
+        let totalizadorGoleiroSolteiros = {};
         let totalizadorCasados = {};
-        let totalCamisasSolteiros = 0;
-        let totalCamisasCasados = 0;
+        let totalizadorGoleiroCasados = {};
+
+        let countSolteiros = 0;
+        let countGoleiroSolteiros = 0;
+        let countCasados = 0;
+        let countGoleiroCasados = 0;
+
         let totalCamisasCount = 0;
         let totalCamisasEsperado = 0;
         let totalCamisasArrecadado = 0;
@@ -86,16 +90,27 @@ window.Camisas = (function() {
                 totalCamisasCount++;
                 const time = getTimeCamisa(p);
                 const modBase = getModeloBase(p.modelo_camisa);
-                const targetDict = time === 'Casados' ? totalizadorCasados : totalizadorSolteiros;
                 
-                if (time === 'Casados') totalCamisasCasados++;
-                else totalCamisasSolteiros++;
+                let targetDict = totalizadorSolteiros;
+                if (time === 'Goleiro Solteiros') {
+                    targetDict = totalizadorGoleiroSolteiros;
+                    countGoleiroSolteiros++;
+                } else if (time === 'Casados') {
+                    targetDict = totalizadorCasados;
+                    countCasados++;
+                } else if (time === 'Goleiro Casados') {
+                    targetDict = totalizadorGoleiroCasados;
+                    countGoleiroCasados++;
+                } else {
+                    targetDict = totalizadorSolteiros;
+                    countSolteiros++;
+                }
 
                 if (!targetDict[modBase]) targetDict[modBase] = {};
                 if (targetDict[modBase][p.tam_camisa] === undefined) targetDict[modBase][p.tam_camisa] = 0;
                 targetDict[modBase][p.tam_camisa]++;
 
-                const preco = parseFloat(p.valor_camisa || 0) || calcularPrecoCamisa(p.modelo_camisa, p.tam_camisa);
+                const preco = calcularPrecoCamisa(p.modelo_camisa, p.tam_camisa, p);
                 const pago = parseFloat(p.camisa_pago || 0);
                 totalCamisasEsperado += preco;
                 totalCamisasArrecadado += pago;
@@ -194,8 +209,10 @@ window.Camisas = (function() {
                     <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400">📊 Totalizador para Confecção (${totalCamisasCount} camisas no total)</h3>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    ${renderBlocoTime('Solteiros (Branco)', '⚪', 'border-slate-700', totalizadorSolteiros, totalCamisasSolteiros)}
-                    ${renderBlocoTime('Casados (Preto)', '⚫', 'border-slate-800', totalizadorCasados, totalCamisasCasados)}
+                    ${renderBlocoTime('Solteiros (Polo - R$ 75)', '⚪', 'border-slate-700', totalizadorSolteiros, countSolteiros)}
+                    ${renderBlocoTime('Goleiro Solteiros (R$ 75)', '🧤', 'border-sky-900/60', totalizadorGoleiroSolteiros, countGoleiroSolteiros)}
+                    ${renderBlocoTime('Casados (R$ 60)', '⚫', 'border-slate-800', totalizadorCasados, countCasados)}
+                    ${renderBlocoTime('Goleiro Casados (R$ 60)', '🧤', 'border-amber-900/60', totalizadorGoleiroCasados, countGoleiroCasados)}
                 </div>
             </div>
         `;
@@ -205,16 +222,26 @@ window.Camisas = (function() {
         state.participantes.forEach(p => {
             let color = 'slate';
             let perfil_label = 'Acompanhante';
-            if (p.categoria === 'Jogador Solteiro' || p.categoria === 'Jogador Casado') { color = 'sky'; perfil_label = 'Jogador'; }
+            if (p.categoria === 'Jogador Solteiro' || p.categoria === 'Jogador Casado') {
+                if (p.posicao_campo === 'Goleiro') {
+                    color = 'amber';
+                    perfil_label = 'Goleiro';
+                } else {
+                    color = 'sky';
+                    perfil_label = 'Jogador';
+                }
+            }
             else if (p.categoria === 'Resenha') { color = 'amber'; perfil_label = 'Torcedor'; }
             else if (p.categoria === 'Criança') { color = 'emerald'; perfil_label = 'Criança'; }
             else if (p.categoria === 'Somente Camisa') { color = 'violet'; perfil_label = 'Somente Camisa'; }
 
             const time = getTimeCamisa(p);
-            const time_emoji = time === 'Solteiros' ? '⚪' : '⚫';
+            let time_emoji = '⚪';
+            if (time === 'Casados') time_emoji = '⚫';
+            else if (time.includes('Goleiro')) time_emoji = '🧤';
 
             const hasCamisa = !!(p.modelo_camisa && p.tam_camisa);
-            const valorCamisa = hasCamisa ? (parseFloat(p.valor_camisa || 0) || calcularPrecoCamisa(p.modelo_camisa, p.tam_camisa)) : 0;
+            const valorCamisa = hasCamisa ? calcularPrecoCamisa(p.modelo_camisa, p.tam_camisa, p) : 0;
             const camisaPago = parseFloat(p.camisa_pago || 0);
             const adminClass = state.isAdmin ? '' : 'hidden';
 
@@ -231,7 +258,9 @@ window.Camisas = (function() {
             }
 
             const pagoClickClass = state.isAdmin ? 'cursor-pointer hover:text-emerald-300 transition-colors camisa-pago-btn' : '';
-            const modExibicao = p.modelo_camisa || '-';
+            const modBase = getModeloBase(p.modelo_camisa);
+            const modExibicao = hasCamisa ? `${modBase} - ${time}` : '-';
+            const numExibicao = (p.num_camisa !== null && p.num_camisa !== undefined && p.num_camisa !== '') ? p.num_camisa : '-';
             
             tbody.innerHTML += `
                 <tr class="hover:bg-slate-800/50 transition-colors">
@@ -242,7 +271,7 @@ window.Camisas = (function() {
                     <td class="text-center px-3 py-3">${time_emoji} ${time}</td>
                     <td class="text-center px-3 py-3">${modExibicao}</td>
                     <td class="text-center px-3 py-3 font-semibold">${p.tam_camisa || '-'}</td>
-                    <td class="text-center px-3 py-3 font-bold text-lg">${p.num_camisa || '-'}</td>
+                    <td class="text-center px-3 py-3 font-bold text-lg">${numExibicao}</td>
                     <td class="text-center px-3 py-3 uppercase tracking-wider">${p.nome_camisa || '-'}</td>
                     <td class="text-right px-3 py-3 font-semibold admin-only ${adminClass}">${valorCamisa > 0 ? formatBRL(valorCamisa) : '-'}</td>
                     <td class="text-right px-3 py-3 admin-only ${adminClass}"><span class="${pagoClickClass} ${camisaPago > 0 ? 'text-emerald-400' : 'text-slate-500'} font-semibold" data-id="${p.id}">${valorCamisa > 0 ? formatBRL(camisaPago) : '-'}</span></td>
@@ -260,8 +289,11 @@ window.Camisas = (function() {
         state.participantes.forEach(p => {
             let perfil = p.categoria || 'Participante';
             const time = getTimeCamisa(p);
+            const modBase = getModeloBase(p.modelo_camisa);
+            const modExibicao = (p.modelo_camisa && p.tam_camisa) ? `${modBase} - ${time}` : (p.modelo_camisa || '');
+            const num = (p.num_camisa !== null && p.num_camisa !== undefined) ? p.num_camisa : '';
             
-            csv += `"${p.nome}","${p.modelo_camisa || ''}","${p.tam_camisa || ''}","${p.num_camisa || ''}","${p.nome_camisa || ''}","${time}","${perfil}"\n`;
+            csv += `"${p.nome}","${modExibicao}","${p.tam_camisa || ''}","${num}","${p.nome_camisa || ''}","${time}","${perfil}"\n`;
         });
 
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -278,7 +310,9 @@ window.Camisas = (function() {
         const state = window.App.state;
         
         let groupsSolteiros = {};
+        let groupsGoleiroSolteiros = {};
         let groupsCasados = {};
+        let groupsGoleiroCasados = {};
         let total = 0;
 
         state.participantes.forEach(p => {
@@ -286,31 +320,36 @@ window.Camisas = (function() {
                 const time = getTimeCamisa(p);
                 const mod = getModeloBase(p.modelo_camisa);
                 const key = `${mod} ${p.tam_camisa}`;
-                const targetDict = time === 'Casados' ? groupsCasados : groupsSolteiros;
                 
+                let targetDict = groupsSolteiros;
+                if (time === 'Goleiro Solteiros') targetDict = groupsGoleiroSolteiros;
+                else if (time === 'Casados') targetDict = groupsCasados;
+                else if (time === 'Goleiro Casados') targetDict = groupsGoleiroCasados;
+                
+                const num = (p.num_camisa !== null && p.num_camisa !== undefined && p.num_camisa !== '') ? p.num_camisa : '-';
                 if (!targetDict[key]) targetDict[key] = [];
-                targetDict[key].push(`• #${p.num_camisa || '-'} ${p.nome_camisa || p.nome.toUpperCase()}`);
+                targetDict[key].push(`• #${num} ${p.nome_camisa || p.nome.toUpperCase()}`);
                 total++;
             }
         });
 
-        let text = `📋 *PEDIDO DE CAMISAS - SOLTEIROS & CASADOS 2026*\nTotal: *${total} camisas*\n\n`;
-        
-        text += `⚪ *--- CAMISAS SOLTEIROS ---*\n`;
-        if (Object.keys(groupsSolteiros).length === 0) text += `(Nenhuma)\n\n`;
-        else {
-            for (let key in groupsSolteiros) {
-                text += `*${key}* (${groupsSolteiros[key].length} un.)\n${groupsSolteiros[key].join('\n')}\n\n`;
+        function formatSection(title, dict) {
+            let sec = `${title}\n`;
+            if (Object.keys(dict).length === 0) {
+                sec += `(Nenhuma)\n\n`;
+            } else {
+                for (let key in dict) {
+                    sec += `*${key}* (${dict[key].length} un.)\n${dict[key].join('\n')}\n\n`;
+                }
             }
+            return sec;
         }
 
-        text += `⚫ *--- CAMISAS CASADOS ---*\n`;
-        if (Object.keys(groupsCasados).length === 0) text += `(Nenhuma)\n\n`;
-        else {
-            for (let key in groupsCasados) {
-                text += `*${key}* (${groupsCasados[key].length} un.)\n${groupsCasados[key].join('\n')}\n\n`;
-            }
-        }
+        let text = `📋 *PEDIDO DE CAMISAS - SOLTEIROS & CASADOS 2026*\nTotal: *${total} camisas*\n\n`;
+        text += formatSection('⚪ *--- CAMISAS SOLTEIROS (POLO) ---*', groupsSolteiros);
+        text += formatSection('🧤 *--- CAMISAS GOLEIRO SOLTEIROS ---*', groupsGoleiroSolteiros);
+        text += formatSection('⚫ *--- CAMISAS CASADOS ---*', groupsCasados);
+        text += formatSection('🧤 *--- CAMISAS GOLEIRO CASADOS ---*', groupsGoleiroCasados);
 
         navigator.clipboard.writeText(text).then(() => {
             if (window.App) window.App.showToast('Resumo de confecção copiado para o WhatsApp!');

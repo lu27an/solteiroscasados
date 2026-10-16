@@ -146,3 +146,18 @@ DROP INDEX IF EXISTS idx_num_camisa_casado;
 DROP INDEX IF EXISTS public.idx_num_camisa_solteiro;
 DROP INDEX IF EXISTS public.idx_num_camisa_casado;
 
+-- LGPD: Limpar números de WhatsApp existentes sem perder registros
+UPDATE public.participantes SET telefone = NULL WHERE telefone IS NOT NULL;
+UPDATE public.inscricoes SET telefone = NULL WHERE telefone IS NOT NULL;
+
+-- Permitir zero à esquerda no número da camisa (ex: '01')
+ALTER TABLE public.participantes ALTER COLUMN num_camisa TYPE TEXT USING num_camisa::TEXT;
+ALTER TABLE public.inscricoes ALTER COLUMN num_camisa TYPE TEXT USING num_camisa::TEXT;
+
+-- Atualizar valores das camisas: Solteiros (Polo) = R$ 75,00 | Casados = R$ 60,00
+UPDATE public.participantes
+SET valor_camisa = CASE
+    WHEN categoria = 'Jogador Casado' OR LOWER(COALESCE(modelo_camisa, '')) LIKE '%casado%' THEN 60
+    ELSE 75
+END
+WHERE modelo_camisa IS NOT NULL AND tam_camisa IS NOT NULL;

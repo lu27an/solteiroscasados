@@ -6,6 +6,8 @@ window.Inscricao = (function() {
         const timeSelect = document.getElementById('insc-time');
         const querCamisa = document.getElementById('insc-quer-camisa');
         const camisaFields = document.getElementById('insc-camisa-fields');
+        const querBolao = document.getElementById('insc-quer-bolao');
+        const bolaoFields = document.getElementById('insc-bolao-fields');
         const posGroup = document.getElementById('insc-posicao-group');
         const timeCamisaGroup = document.getElementById('insc-time-camisa-container');
         const modeloSelect = document.getElementById('insc-modelo');
@@ -25,10 +27,10 @@ window.Inscricao = (function() {
                         { val: 'M', label: 'M' },
                         { val: 'G', label: 'G' },
                         { val: 'GG', label: 'GG' },
-                        { val: 'XGG', label: 'XGG (+R$ 10)' },
-                        { val: 'G1', label: 'G1 (+R$ 10)' },
-                        { val: 'G2', label: 'G2 (+R$ 10)' },
-                        { val: 'G3', label: 'G3 (+R$ 10)' }
+                        { val: 'XGG', label: 'XGG' },
+                        { val: 'G1', label: 'G1' },
+                        { val: 'G2', label: 'G2' },
+                        { val: 'G3', label: 'G3' }
                     ];
                 } else if (val === 'Baby Look') {
                     options = [
@@ -36,7 +38,7 @@ window.Inscricao = (function() {
                         { val: 'BL-M', label: 'BL-M' },
                         { val: 'BL-G', label: 'BL-G' },
                         { val: 'BL-GG', label: 'BL-GG' },
-                        { val: 'BL-XGG', label: 'BL-XGG (+R$ 10)' }
+                        { val: 'BL-XGG', label: 'BL-XGG' }
                     ];
                 } else if (val === 'Infantil') {
                     options = [
@@ -97,20 +99,29 @@ window.Inscricao = (function() {
             });
         }
 
+        // Toggle bolão fields
+        if (querBolao) {
+            querBolao.addEventListener('change', () => {
+                if (bolaoFields) {
+                    bolaoFields.classList.toggle('hidden', !querBolao.checked);
+                }
+            });
+        }
+
         // Submit form
         if (form) {
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
 
                 const nome = document.getElementById('insc-nome').value.trim();
-                const telefone = document.getElementById('insc-telefone').value.trim();
                 const time = document.getElementById('insc-time').value;
                 const posicao = (time === 'Resenha' || time === 'Somente Camisa') ? 'Nao Joga' : document.getElementById('insc-posicao').value;
                 const consumo = (time === 'Somente Camisa') ? 'Somente Camisa' : document.getElementById('insc-consumo').value;
                 const wantShirt = document.getElementById('insc-quer-camisa').checked;
+                const wantBolao = querBolao ? querBolao.checked : true;
 
-                if (!nome || !telefone) {
-                    if (window.App) App.showToast('Preencha nome e telefone!');
+                if (!nome) {
+                    if (window.App) App.showToast('Preencha seu nome completo!');
                     return;
                 }
 
@@ -126,33 +137,37 @@ window.Inscricao = (function() {
                     btnSubmit.textContent = 'Enviando...';
                 }
 
-                // Format standardized shirt model: Modelo - Time
+                // Format standardized shirt model: Modelo - Time (incluindo Goleiro separado)
                 let modeloFormatado = null;
                 if (wantShirt) {
                     const modBase = document.getElementById('insc-modelo').value;
                     let timeCamisa = 'Solteiros';
-                    if (time === 'Jogador Solteiro') timeCamisa = 'Solteiros';
-                    else if (time === 'Jogador Casado') timeCamisa = 'Casados';
-                    else {
+                    if (time === 'Jogador Solteiro') {
+                        timeCamisa = (posicao === 'Goleiro') ? 'Goleiro Solteiros' : 'Solteiros';
+                    } else if (time === 'Jogador Casado') {
+                        timeCamisa = (posicao === 'Goleiro') ? 'Goleiro Casados' : 'Casados';
+                    } else {
                         timeCamisa = document.getElementById('insc-time-camisa').value;
                     }
                     modeloFormatado = `${modBase} - ${timeCamisa}`;
                 }
 
+                const rawNum = wantShirt && document.getElementById('insc-numero') ? document.getElementById('insc-numero').value.trim() : '';
+
                 const inscricao = {
                     nome,
-                    telefone,
+                    telefone: null,
                     categoria: time,
                     posicao_campo: posicao,
                     tipo_consumo: consumo,
                     quer_camisa: wantShirt,
                     modelo_camisa: modeloFormatado,
                     tam_camisa: wantShirt ? document.getElementById('insc-tamanho').value : null,
-                    num_camisa: wantShirt && document.getElementById('insc-numero').value ? parseInt(document.getElementById('insc-numero').value) : null,
+                    num_camisa: rawNum !== '' ? rawNum : null,
                     nome_camisa: wantShirt ? (document.getElementById('insc-nome-camisa').value || '').toUpperCase() : null,
-                    bolao_solteiros: parseInt(document.getElementById('insc-placar-solteiros').value) || 0,
-                    bolao_casados: parseInt(document.getElementById('insc-placar-casados').value) || 0,
-                    bolao_mensagem: document.getElementById('insc-mensagem').value.trim(),
+                    bolao_solteiros: wantBolao ? (parseInt(document.getElementById('insc-placar-solteiros').value) || 0) : null,
+                    bolao_casados: wantBolao ? (parseInt(document.getElementById('insc-placar-casados').value) || 0) : null,
+                    bolao_mensagem: wantBolao ? document.getElementById('insc-mensagem').value.trim() : null,
                     status: 'pendente'
                 };
 
@@ -166,6 +181,8 @@ window.Inscricao = (function() {
                     document.getElementById('insc-placar-casados').value = '0';
                     if (querCamisa) querCamisa.checked = true;
                     if (camisaFields) camisaFields.classList.remove('hidden');
+                    if (querBolao) querBolao.checked = true;
+                    if (bolaoFields) bolaoFields.classList.remove('hidden');
 
                     if (window.App) {
                         App.showToast('Inscrição enviada com sucesso! Aguarde aprovação do organizador.');
@@ -199,6 +216,83 @@ window.Inscricao = (function() {
                 }
             });
         }
+
+        // Mural do Bolão Admin actions (Editar / Excluir palpite)
+        const muralContainer = document.getElementById('bolao-mural');
+        if (muralContainer) {
+            muralContainer.addEventListener('click', async (e) => {
+                const btn = e.target.closest('button');
+                if (!btn) return;
+                const id = btn.dataset.id;
+                if (!id) return;
+
+                if (btn.classList.contains('btn-edit-bolao')) {
+                    openEditBolao(id);
+                } else if (btn.classList.contains('btn-delete-bolao')) {
+                    await removerPalpiteBolao(id);
+                }
+            });
+        }
+
+        // Form de edição do Bolão
+        const bolaoEditForm = document.getElementById('bolao-edit-form');
+        if (bolaoEditForm) {
+            bolaoEditForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const id = document.getElementById('bolao-edit-id').value;
+                const solteiros = parseInt(document.getElementById('bolao-edit-solteiros').value) || 0;
+                const casados = parseInt(document.getElementById('bolao-edit-casados').value) || 0;
+                const mensagem = document.getElementById('bolao-edit-mensagem').value.trim();
+
+                if (window.DB && DB.inscricoes) {
+                    await DB.inscricoes.update(id, {
+                        bolao_solteiros: solteiros,
+                        bolao_casados: casados,
+                        bolao_mensagem: mensagem
+                    });
+                }
+
+                const modal = document.getElementById('modal-bolao-edit');
+                if (modal) modal.classList.add('hidden');
+                if (window.App) {
+                    await App.refreshAll();
+                    App.showToast('Palpite do Bolão atualizado!');
+                }
+            });
+        }
+    }
+
+    function openEditBolao(id) {
+        const list = (window.App && window.App.state && window.App.state.inscricoes) ? window.App.state.inscricoes : [];
+        const item = list.find(i => i.id == id);
+        if (!item) return;
+
+        document.getElementById('bolao-edit-id').value = item.id;
+        document.getElementById('bolao-edit-nome').textContent = item.nome;
+        document.getElementById('bolao-edit-solteiros').value = item.bolao_solteiros ?? 0;
+        document.getElementById('bolao-edit-casados').value = item.bolao_casados ?? 0;
+        document.getElementById('bolao-edit-mensagem').value = item.bolao_mensagem || '';
+
+        const modal = document.getElementById('modal-bolao-edit');
+        if (modal) modal.classList.remove('hidden');
+    }
+
+    async function removerPalpiteBolao(id) {
+        try {
+            if (window.DB && DB.inscricoes) {
+                await DB.inscricoes.update(id, {
+                    bolao_solteiros: null,
+                    bolao_casados: null,
+                    bolao_mensagem: null
+                });
+            }
+            if (window.App) {
+                await App.refreshAll();
+                App.showToast('Palpite removido do Bolão!');
+            }
+        } catch (err) {
+            console.error('Erro ao remover palpite do bolão:', err);
+        }
     }
 
     async function aprovarInscricao(id) {
@@ -222,12 +316,12 @@ window.Inscricao = (function() {
         // Calculate camisa price if requested
         let precoCamisa = 0;
         if (insc.quer_camisa && insc.modelo_camisa && window.Camisas) {
-            precoCamisa = Camisas.calcularPrecoCamisa(insc.modelo_camisa, insc.tam_camisa);
+            precoCamisa = Camisas.calcularPrecoCamisa(insc.modelo_camisa, insc.tam_camisa, insc);
         }
 
         const participanteData = {
             nome: insc.nome,
-            telefone: insc.telefone,
+            telefone: null,
             categoria: insc.categoria,
             posicao_campo: insc.posicao_campo,
             tipo_consumo: insc.tipo_consumo,
@@ -277,8 +371,9 @@ window.Inscricao = (function() {
 
     function render(state) {
         const list = (state && state.inscricoes) ? state.inscricoes : [];
+        const isAdmin = !!(state && state.isAdmin);
         const pendentes = list.filter(i => i.status === 'pendente');
-        const aprovados = list.filter(i => i.status === 'aprovado');
+        const palpitesBolao = list.filter(i => i.status === 'aprovado' && i.bolao_solteiros !== null && i.bolao_casados !== null && i.bolao_solteiros !== undefined && i.bolao_casados !== undefined);
 
         // Render pending inscriptions (admin only)
         const pendentesContainer = document.getElementById('inscricoes-pendentes');
@@ -290,13 +385,14 @@ window.Inscricao = (function() {
                 pendentesContainer.innerHTML = pendentes.map(i => {
                     const timeIcon = i.categoria === 'Jogador Solteiro' ? '⚪' : i.categoria === 'Jogador Casado' ? '⚫' : '🍻';
                     const camisaInfo = i.quer_camisa ? `${i.modelo_camisa || ''} ${i.tam_camisa || ''} ${i.num_camisa ? '#' + i.num_camisa : ''} ${i.nome_camisa || ''}`.trim() : 'Sem camisa';
-                    const bolaoText = `${i.bolao_solteiros} × ${i.bolao_casados}`;
+                    const hasBolao = i.bolao_solteiros !== null && i.bolao_casados !== null && i.bolao_solteiros !== undefined && i.bolao_casados !== undefined;
+                    const bolaoText = hasBolao ? `${i.bolao_solteiros} × ${i.bolao_casados}` : 'Sem palpite';
                     return `
                         <div class="bg-slate-800/50 rounded-xl p-4 border border-slate-700 space-y-2">
                             <div class="flex justify-between items-start">
                                 <div>
                                     <p class="font-semibold text-white">${timeIcon} ${i.nome}</p>
-                                    <p class="text-xs text-slate-400">📱 ${i.telefone} • ${i.tipo_consumo}</p>
+                                    <p class="text-xs text-slate-400">${i.categoria} • ${i.tipo_consumo}</p>
                                 </div>
                                 <span class="text-xs bg-amber-900/50 text-amber-300 px-2 py-0.5 rounded-full">Pendente</span>
                             </div>
@@ -317,17 +413,17 @@ window.Inscricao = (function() {
         }
         if (pendentesCount) pendentesCount.textContent = pendentes.length;
 
-        // Render bolão mural (approved only)
+        // Render bolão mural (approved & opted-in only)
         const muralContainer = document.getElementById('bolao-mural');
         const bolaoCount = document.getElementById('bolao-count');
         if (muralContainer) {
-            if (aprovados.length === 0) {
+            if (palpitesBolao.length === 0) {
                 muralContainer.innerHTML = '<p class="text-slate-500 text-sm italic text-center py-4">Nenhum palpite ainda. Seja o primeiro!</p>';
             } else {
-                muralContainer.innerHTML = aprovados.map(i => {
+                const adminBtnsClass = isAdmin ? '' : 'hidden';
+                muralContainer.innerHTML = palpitesBolao.map(i => {
                     const solteirosWin = i.bolao_solteiros > i.bolao_casados;
                     const casadosWin = i.bolao_casados > i.bolao_solteiros;
-                    const empate = i.bolao_solteiros === i.bolao_casados;
                     return `
                         <div class="bg-slate-800/50 rounded-lg p-3 border border-slate-700/50 flex items-center gap-3">
                             <div class="flex items-center gap-2 flex-1 min-w-0">
@@ -339,17 +435,23 @@ window.Inscricao = (function() {
                                     ${i.bolao_mensagem ? `<p class="text-xs text-slate-400 truncate italic">${i.bolao_mensagem}</p>` : ''}
                                 </div>
                             </div>
-                            <div class="flex items-center gap-1 shrink-0">
-                                <span class="text-lg font-bold ${solteirosWin ? 'text-emerald-400' : 'text-slate-300'}">${i.bolao_solteiros}</span>
-                                <span class="text-xs text-slate-500">×</span>
-                                <span class="text-lg font-bold ${casadosWin ? 'text-emerald-400' : 'text-slate-300'}">${i.bolao_casados}</span>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <div class="flex items-center gap-1 bg-slate-900/70 px-2.5 py-1 rounded-lg border border-slate-700/50">
+                                    <span class="text-lg font-bold ${solteirosWin ? 'text-emerald-400' : 'text-slate-300'}">${i.bolao_solteiros}</span>
+                                    <span class="text-xs text-slate-500">×</span>
+                                    <span class="text-lg font-bold ${casadosWin ? 'text-emerald-400' : 'text-slate-300'}">${i.bolao_casados}</span>
+                                </div>
+                                <div class="flex items-center gap-1 admin-only ${adminBtnsClass}">
+                                    <button class="btn-edit-bolao p-1.5 rounded-lg bg-slate-700/60 hover:bg-slate-700 text-xs transition-colors" data-id="${i.id}" title="Editar Palpite">✏️</button>
+                                    <button class="btn-delete-bolao p-1.5 rounded-lg bg-rose-950/60 hover:bg-rose-900/80 text-xs transition-colors" data-id="${i.id}" title="Apagar do Bolão">🗑️</button>
+                                </div>
                             </div>
                         </div>
                     `;
                 }).join('');
             }
         }
-        if (bolaoCount) bolaoCount.textContent = aprovados.length;
+        if (bolaoCount) bolaoCount.textContent = palpitesBolao.length;
     }
 
     return { init, render };

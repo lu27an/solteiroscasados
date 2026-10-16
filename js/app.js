@@ -231,6 +231,7 @@ window.App = (function() {
                 
                 const cat = document.getElementById('form-categoria').value;
                 const id = document.getElementById('form-id').value;
+                const pos = document.getElementById('form-posicao').value;
 
                 let consumo = document.getElementById('form-consumo').value;
                 if (cat === 'Somente Camisa') consumo = 'Somente Camisa';
@@ -241,25 +242,28 @@ window.App = (function() {
 
                 const modBase = document.getElementById('form-modelo').value;
                 let timeCamisa = 'Solteiros';
-                if (cat === 'Jogador Solteiro') timeCamisa = 'Solteiros';
-                else if (cat === 'Jogador Casado') timeCamisa = 'Casados';
-                else {
+                if (cat === 'Jogador Solteiro') {
+                    timeCamisa = (pos === 'Goleiro') ? 'Goleiro Solteiros' : 'Solteiros';
+                } else if (cat === 'Jogador Casado') {
+                    timeCamisa = (pos === 'Goleiro') ? 'Goleiro Casados' : 'Casados';
+                } else {
                     const timeEl = document.getElementById('form-time-camisa');
                     if (timeEl) timeCamisa = timeEl.value;
                 }
                 const modeloFormatado = `${modBase} - ${timeCamisa}`;
                 const tamCamisa = document.getElementById('form-tamanho').value;
                 const precoCamisa = window.Camisas ? Camisas.calcularPrecoCamisa(modeloFormatado, tamCamisa) : 0;
+                const rawNum = document.getElementById('form-numero').value.trim();
 
                 const data = {
                     nome: document.getElementById('form-nome').value,
-                    telefone: document.getElementById('form-telefone').value,
+                    telefone: null,
                     categoria: cat,
-                    posicao_campo: document.getElementById('form-posicao').value,
+                    posicao_campo: pos,
                     tipo_consumo: consumo,
                     modelo_camisa: modeloFormatado,
                     tam_camisa: tamCamisa,
-                    num_camisa: document.getElementById('form-numero').value ? parseInt(document.getElementById('form-numero').value) : null,
+                    num_camisa: rawNum !== '' ? rawNum : null,
                     nome_camisa: document.getElementById('form-nome-camisa').value.toUpperCase(),
                     responsavel_id: cat === 'Acompanhante' && document.getElementById('form-responsavel').value ? parseInt(document.getElementById('form-responsavel').value) : null,
                     valor_total: valor,
@@ -307,7 +311,7 @@ window.App = (function() {
                     await DB.participantes.update(id, { valor_pago: valor });
                 } else {
                     const p = state.participantes.find(x => x.id == id);
-                    const preco = (p && parseFloat(p.valor_camisa || 0)) || (p && window.Camisas ? Camisas.calcularPrecoCamisa(p.modelo_camisa, p.tam_camisa) : 0);
+                    const preco = (p && window.Camisas) ? Camisas.calcularPrecoCamisa(p.modelo_camisa, p.tam_camisa, p) : parseFloat(p?.valor_camisa || 0);
                     await DB.participantes.update(id, { camisa_pago: valor, valor_camisa: preco });
                 }
                 
@@ -323,8 +327,8 @@ window.App = (function() {
                     const tipo = document.getElementById('pagamento-tipo').value;
                     const p = state.participantes.find(x => x.id == id);
                     if (p) {
-                        const valorCamisaCalculado = window.Camisas ? Camisas.calcularPrecoCamisa(p.modelo_camisa, p.tam_camisa) : 0;
-                        const valorTotal = tipo === 'churrasco' ? parseFloat(p.valor_total || 0) : (parseFloat(p.valor_camisa || 0) || valorCamisaCalculado);
+                        const valorCamisaCalculado = window.Camisas ? Camisas.calcularPrecoCamisa(p.modelo_camisa, p.tam_camisa, p) : parseFloat(p.valor_camisa || 0);
+                        const valorTotal = tipo === 'churrasco' ? parseFloat(p.valor_total || 0) : valorCamisaCalculado;
                         updatePagamentoPreview(valorTotal);
                     }
                 });
@@ -338,7 +342,6 @@ window.App = (function() {
         
         document.getElementById('form-id').value = p.id;
         document.getElementById('form-nome').value = p.nome;
-        document.getElementById('form-telefone').value = p.telefone || '';
         document.getElementById('form-categoria').value = p.categoria;
         document.getElementById('form-categoria').dispatchEvent(new Event('change'));
         if (p.responsavel_id) document.getElementById('form-responsavel').value = p.responsavel_id;
@@ -357,7 +360,7 @@ window.App = (function() {
             timeCamisaEl.value = window.Camisas ? Camisas.getTimeCamisa(p) : 'Solteiros';
         }
 
-        document.getElementById('form-numero').value = p.num_camisa || '';
+        document.getElementById('form-numero').value = (p.num_camisa !== null && p.num_camisa !== undefined) ? p.num_camisa : '';
         document.getElementById('form-nome-camisa').value = p.nome_camisa || '';
         
         document.getElementById('modal-cadastro-title').textContent = 'Editar Participante';
@@ -402,15 +405,11 @@ window.App = (function() {
             return;
         }
 
-        let phone = p.telefone || '';
-        phone = phone.replace(/\D/g, '');
-        if (phone && phone.length <= 11) phone = '55' + phone;
-
         const formatBRL = (val) => val.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
         
         const msg = `Fala ${p.nome}! Tudo bem? 🤙\n\nSegue o resumo da sua inscrição do *Solteiros e Casados 2026*:\n\n🥩 *Churrasco:* ${formatBRL(valorTotal)}\n✅ *Já pago:* ${formatBRL(valorPago)}\n⏳ *Falta:* ${formatBRL(restante)}\n\n💳 *Chave PIX (CPF):* ${state.config.pix_chave || '46413688807'}\n👤 *Nome:* ${state.config.pix_nome || 'LUAN AUGUSTO BARBOZA SIMAO'}\n🏛️ *Banco:* Banco do Brasil\n\nQualquer dúvida é só avisar! ⚽`;
         
-        window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(msg)}`, '_blank');
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
     }
 
     function confirmDelete(id) {
@@ -456,8 +455,8 @@ window.App = (function() {
         if (!p) return;
         
         const isChurrasco = tipo === 'churrasco';
-        const valorCamisaCalculado = window.Camisas ? Camisas.calcularPrecoCamisa(p.modelo_camisa, p.tam_camisa) : 0;
-        const valorTotal = isChurrasco ? parseFloat(p.valor_total || 0) : (parseFloat(p.valor_camisa || 0) || valorCamisaCalculado);
+        const valorCamisaCalculado = window.Camisas ? Camisas.calcularPrecoCamisa(p.modelo_camisa, p.tam_camisa, p) : parseFloat(p.valor_camisa || 0);
+        const valorTotal = isChurrasco ? parseFloat(p.valor_total || 0) : valorCamisaCalculado;
         const valorPago = isChurrasco ? parseFloat(p.valor_pago || 0) : parseFloat(p.camisa_pago || 0);
         
         document.getElementById('pagamento-id').value = p.id;
@@ -526,6 +525,7 @@ window.App = (function() {
         if (window.Escalacao) Escalacao.render(state);
         if (window.Camisas) Camisas.render(state);
         if (window.Caixa) Caixa.render(state);
+        if (window.Inscricao) Inscricao.render(state);
     }
 
     return { 

@@ -83,40 +83,79 @@ window.DB = (() => {
         return nextId;
     }
 
+    function encodeNumCamisa(val) {
+        if (val === null || val === undefined || val === '') return null;
+        const str = String(val).trim();
+        if (!str) return null;
+        // Se tiver zero à esquerda (ex: '01', '09', '00'), codificamos como inteiro negativo
+        // para preservar o zero mesmo em coluna INTEGER do PostgreSQL
+        if (/^0\d+$/.test(str)) {
+            const n = parseInt(str, 10);
+            if (n === 0) return -100; // '00'
+            return -n; // '01' -> -1, '09' -> -9
+        }
+        const parsed = parseInt(str, 10);
+        return isNaN(parsed) ? null : parsed;
+    }
+
+    function decodeNumCamisa(val) {
+        if (val === null || val === undefined || val === '') return null;
+        const n = Number(val);
+        if (!isNaN(n) && n < 0) {
+            if (n === -100) return '00';
+            return '0' + Math.abs(n);
+        }
+        return String(val);
+    }
+
+    function normalizeRecord(rec) {
+        if (!rec) return rec;
+        return {
+            ...rec,
+            telefone: null,
+            num_camisa: decodeNumCamisa(rec.num_camisa)
+        };
+    }
+
     const participantes = {
         async list() {
             if (!_isLocal) {
                 try {
                     const { data, error } = await supabaseClient.from('participantes').select('*').order('nome');
-                    if (!error && data) return data;
+                    if (!error && data) return data.map(normalizeRecord);
                 } catch(e) {
                     console.warn("Supabase participantes.list fallback:", e);
                 }
             }
             const list = getLocal('participantes');
-            return list.sort((a, b) => a.nome.localeCompare(b.nome));
+            return list.map(normalizeRecord).sort((a, b) => a.nome.localeCompare(b.nome));
         },
         async create(data) {
+            const payload = { ...data, telefone: null };
+            if ('num_camisa' in payload) payload.num_camisa = encodeNumCamisa(payload.num_camisa);
             if (!_isLocal) {
                 try {
-                    const { data: created, error } = await supabaseClient.from('participantes').insert(data).select().single();
-                    if (!error && created) return created;
+                    const { data: created, error } = await supabaseClient.from('participantes').insert(payload).select().single();
+                    if (!error && created) return normalizeRecord(created);
                     if (error) console.warn("Supabase participantes.create error:", error);
                 } catch(e) {
                     console.warn("Supabase participantes.create fallback:", e);
                 }
             }
             const list = getLocal('participantes');
-            const newObj = { ...data, id: generateId('participantes'), created_at: new Date().toISOString() };
+            const newObj = { ...payload, id: generateId('participantes'), created_at: new Date().toISOString() };
             list.push(newObj);
             setLocal('participantes', list);
-            return newObj;
+            return normalizeRecord(newObj);
         },
         async update(id, updates) {
+            const payload = { ...updates };
+            if ('telefone' in payload) payload.telefone = null;
+            if ('num_camisa' in payload) payload.num_camisa = encodeNumCamisa(payload.num_camisa);
             if (!_isLocal) {
                 try {
-                    const { data: updated, error } = await supabaseClient.from('participantes').update(updates).eq('id', id).select().single();
-                    if (!error && updated) return updated;
+                    const { data: updated, error } = await supabaseClient.from('participantes').update(payload).eq('id', id).select().single();
+                    if (!error && updated) return normalizeRecord(updated);
                 } catch(e) {
                     console.warn("Supabase participantes.update fallback:", e);
                 }
@@ -124,9 +163,9 @@ window.DB = (() => {
             const list = getLocal('participantes');
             const index = list.findIndex(p => p.id == id);
             if (index !== -1) {
-                list[index] = { ...list[index], ...updates };
+                list[index] = { ...list[index], ...payload };
                 setLocal('participantes', list);
-                return list[index];
+                return normalizeRecord(list[index]);
             }
             return null;
         },
@@ -351,34 +390,39 @@ window.DB = (() => {
             if (!_isLocal) {
                 try {
                     const { data, error } = await supabaseClient.from('inscricoes').select('*').order('created_at', { ascending: false });
-                    if (!error && data) return data;
+                    if (!error && data) return data.map(normalizeRecord);
                 } catch (err) {
                     console.warn("Supabase inscricoes list error, using local fallback", err);
                 }
             }
-            return getLocal('inscricoes');
+            return getLocal('inscricoes').map(normalizeRecord);
         },
         async create(data) {
+            const payload = { ...data, telefone: null };
+            if ('num_camisa' in payload) payload.num_camisa = encodeNumCamisa(payload.num_camisa);
             if (!_isLocal) {
                 try {
-                    const { data: created, error } = await supabaseClient.from('inscricoes').insert(data).select().single();
-                    if (!error && created) return created;
+                    const { data: created, error } = await supabaseClient.from('inscricoes').insert(payload).select().single();
+                    if (!error && created) return normalizeRecord(created);
                     if (error) console.warn("Supabase inscricoes.create error:", error);
                 } catch(e) {
                     console.warn("Supabase inscricoes.create fallback:", e);
                 }
             }
             const list = getLocal('inscricoes');
-            const newObj = { ...data, id: generateId('inscricoes'), created_at: new Date().toISOString() };
+            const newObj = { ...payload, id: generateId('inscricoes'), created_at: new Date().toISOString() };
             list.push(newObj);
             setLocal('inscricoes', list);
-            return newObj;
+            return normalizeRecord(newObj);
         },
         async update(id, updates) {
+            const payload = { ...updates };
+            if ('telefone' in payload) payload.telefone = null;
+            if ('num_camisa' in payload) payload.num_camisa = encodeNumCamisa(payload.num_camisa);
             if (!_isLocal) {
                 try {
-                    const { data: updated, error } = await supabaseClient.from('inscricoes').update(updates).eq('id', id).select().single();
-                    if (!error && updated) return updated;
+                    const { data: updated, error } = await supabaseClient.from('inscricoes').update(payload).eq('id', id).select().single();
+                    if (!error && updated) return normalizeRecord(updated);
                 } catch(e) {
                     console.warn("Supabase inscricoes.update fallback:", e);
                 }
@@ -386,9 +430,9 @@ window.DB = (() => {
             const list = getLocal('inscricoes');
             const index = list.findIndex(i => i.id == id);
             if (index !== -1) {
-                list[index] = { ...list[index], ...updates };
+                list[index] = { ...list[index], ...payload };
                 setLocal('inscricoes', list);
-                return list[index];
+                return normalizeRecord(list[index]);
             }
             return null;
         },

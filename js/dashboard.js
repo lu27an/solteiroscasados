@@ -102,9 +102,8 @@ window.Dashboard = (function() {
         const presets = {
             'churrasco-completo': { motivo: 'Churrasco Completo (Com Chopp)', valor: 110 },
             'churrasco-semchopp': { motivo: 'Churrasco Sem Chopp', valor: 80 },
-            'camisa-tradicional': { motivo: 'Camisa Tradicional / Baby Look', valor: 50 },
-            'camisa-extra':       { motivo: 'Camisa XGG / G1 / G2 / G3', valor: 60 },
-            'camisa-infantil':    { motivo: 'Camisa Infantil', valor: 40 },
+            'camisa-solteiros':   { motivo: 'Camisa Solteiros (Polo)', valor: 75 },
+            'camisa-casados':     { motivo: 'Camisa Casados', valor: 60 },
             'patrocinio':         { motivo: 'Patrocínio / Apoio ao Evento', valor: 100 },
             'personalizado':      { motivo: 'Pagamento Solteiros & Casados 2026', valor: 50 }
         };
@@ -264,7 +263,8 @@ window.Dashboard = (function() {
             churrascoArrecadado += pagoChurrasco;
             churrascoPendente += Math.max(0, totalChurrasco - pagoChurrasco);
 
-            const valorCamisa = parseFloat(p.valor_camisa || 0) || (window.Camisas ? Camisas.calcularPrecoCamisa(p.modelo_camisa, p.tam_camisa) : 0);
+            const hasCamisa = !!(p.modelo_camisa && p.tam_camisa);
+            const valorCamisa = hasCamisa && window.Camisas ? Camisas.calcularPrecoCamisa(p.modelo_camisa, p.tam_camisa, p) : parseFloat(p.valor_camisa || 0);
             const pagoCamisa = parseFloat(p.camisa_pago || 0);
             camisasArrecadado += pagoCamisa;
             camisasPendente += Math.max(0, valorCamisa - pagoCamisa);

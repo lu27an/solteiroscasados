@@ -340,9 +340,8 @@
                                 <select id="pix-gen-finalidade" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none">
                                     <option value="churrasco-completo" selected>🍻 Churrasco Completo (Com Chopp) — R$ 110</option>
                                     <option value="churrasco-semchopp">🥤 Churrasco Sem Chopp — R$ 80</option>
-                                    <option value="camisa-tradicional">👕 Camisa Tradicional / Baby Look — R$ 50</option>
-                                    <option value="camisa-extra">👕 Camisa XGG / G1 / G2 / G3 — R$ 60</option>
-                                    <option value="camisa-infantil">👶 Camisa Infantil — R$ 40</option>
+                                    <option value="camisa-solteiros">⚪ Camisa Solteiros (Polo) — R$ 75</option>
+                                    <option value="camisa-casados">⚫ Camisa Casados — R$ 60</option>
                                     <option value="patrocinio">🤝 Patrocínio / Apoio ao Evento</option>
                                     <option value="personalizado">✏️ Personalizado (Valor Livre)</option>
                                 </select>
@@ -558,15 +557,9 @@
                             <p class="text-xs text-slate-400 mt-1">Preencha seus dados para se inscrever no evento. Sua inscrição será analisada pelo organizador.</p>
                         </div>
                         <form id="form-inscricao" class="p-5 space-y-4">
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-400 mb-1">Nome Completo *</label>
-                                    <input type="text" id="insc-nome" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-400 mb-1">WhatsApp *</label>
-                                    <input type="tel" id="insc-telefone" required placeholder="(18) 99999-9999" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none">
-                                </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">Nome Completo *</label>
+                                <input type="text" id="insc-nome" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none">
                             </div>
 
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -607,7 +600,7 @@
                                     </label>
                                 </div>
                                 <p class="text-xs text-amber-400/90 mb-3 bg-amber-500/10 p-2.5 rounded-lg border border-amber-500/20">
-                                    👕 <strong>Valores das Camisas:</strong> Até GG: R$ 50,00 | XGG ou maior (G1, G2, G3): R$ 60,00 | Infantil: R$ 40,00. <em>Jogadores precisam ter camisa obrigatoriamente.</em>
+                                    👕 <strong>Valores das Camisas:</strong> Solteiros (Camisa Polo): R$ 75,00 | Casados: R$ 60,00. <em>Jogadores precisam ter camisa obrigatoriamente.</em>
                                 </p>
                                 <div id="insc-camisa-fields" class="grid grid-cols-2 gap-3">
                                     <div>
@@ -626,10 +619,10 @@
                                             <option value="M">M</option>
                                             <option value="G">G</option>
                                             <option value="GG">GG</option>
-                                            <option value="XGG">XGG (+R$ 10)</option>
-                                            <option value="G1">G1 (+R$ 10)</option>
-                                            <option value="G2">G2 (+R$ 10)</option>
-                                            <option value="G3">G3 (+R$ 10)</option>
+                                            <option value="XGG">XGG</option>
+                                            <option value="G1">G1</option>
+                                            <option value="G2">G2</option>
+                                            <option value="G3">G3</option>
                                         </select>
                                     </div>
                                     <div id="insc-time-camisa-container" class="hidden col-span-2 sm:col-span-1">
@@ -643,7 +636,7 @@
                                     </div>
                                     <div>
                                         <label class="block text-xs font-medium text-slate-400 mb-1">Número</label>
-                                        <input type="number" id="insc-numero" min="1" max="99" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none">
+                                        <input type="text" inputmode="numeric" maxlength="3" pattern="[0-9]*" placeholder="Ex: 01, 10" id="insc-numero" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none">
                                     </div>
                                     <div>
                                         <label class="block text-xs font-medium text-slate-400 mb-1">Nome nas Costas</label>
@@ -654,22 +647,32 @@
 
                             <!-- Bolão -->
                             <div class="border-t border-slate-800 pt-4">
-                                <h3 class="text-sm font-semibold text-white mb-3">🎯 Bolão — Qual o Placar?</h3>
-                                <p class="text-xs text-slate-400 mb-3">Dê seu palpite do placar final! Só por diversão 😄</p>
-                                <div class="flex items-center justify-center gap-3">
-                                    <div class="text-center">
-                                        <p class="text-xs text-slate-400 mb-1">⚪ Solteiros</p>
-                                        <input type="number" id="insc-placar-solteiros" min="0" max="99" value="0" class="w-16 bg-slate-950 border border-slate-700 rounded-lg py-2 text-center text-xl font-bold text-white focus:border-emerald-500 focus:outline-none">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div>
+                                        <h3 class="text-sm font-semibold text-white">🎯 Participar do Bolão?</h3>
+                                        <p class="text-xs text-slate-400">Dê seu palpite do placar final! (Opcional)</p>
                                     </div>
-                                    <span class="text-2xl font-bold text-slate-500 mt-4">×</span>
-                                    <div class="text-center">
-                                        <p class="text-xs text-slate-400 mb-1">⚫ Casados</p>
-                                        <input type="number" id="insc-placar-casados" min="0" max="99" value="0" class="w-16 bg-slate-950 border border-slate-700 rounded-lg py-2 text-center text-xl font-bold text-white focus:border-emerald-500 focus:outline-none">
-                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" id="insc-quer-bolao" class="sr-only peer" checked>
+                                        <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+                                    </label>
                                 </div>
-                                <div class="mt-3">
-                                    <label class="block text-xs font-medium text-slate-400 mb-1">Mensagem / Provocação (opcional)</label>
-                                    <input type="text" id="insc-mensagem" maxlength="100" placeholder="Ex: Solteiros vai dar um baile! 🔥" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none">
+                                <div id="insc-bolao-fields" class="mt-3">
+                                    <div class="flex items-center justify-center gap-3">
+                                        <div class="text-center">
+                                            <p class="text-xs text-slate-400 mb-1">⚪ Solteiros</p>
+                                            <input type="number" id="insc-placar-solteiros" min="0" max="99" value="0" class="w-16 bg-slate-950 border border-slate-700 rounded-lg py-2 text-center text-xl font-bold text-white focus:border-emerald-500 focus:outline-none">
+                                        </div>
+                                        <span class="text-2xl font-bold text-slate-500 mt-4">×</span>
+                                        <div class="text-center">
+                                            <p class="text-xs text-slate-400 mb-1">⚫ Casados</p>
+                                            <input type="number" id="insc-placar-casados" min="0" max="99" value="0" class="w-16 bg-slate-950 border border-slate-700 rounded-lg py-2 text-center text-xl font-bold text-white focus:border-emerald-500 focus:outline-none">
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <label class="block text-xs font-medium text-slate-400 mb-1">Mensagem / Provocação (opcional)</label>
+                                        <input type="text" id="insc-mensagem" maxlength="100" placeholder="Ex: Solteiros vai dar um baile! 🔥" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none">
+                                    </div>
                                 </div>
                             </div>
 
@@ -925,15 +928,9 @@
             <form id="form-cadastro" class="p-5 space-y-4">
                 <input type="hidden" id="form-id">
                 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">Nome Completo *</label>
-                        <input type="text" id="form-nome" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">WhatsApp</label>
-                        <input type="tel" id="form-telefone" placeholder="(18) 99999-9999" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none">
-                    </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Nome Completo *</label>
+                    <input type="text" id="form-nome" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none">
                 </div>
 
                 <div>
@@ -1011,7 +1008,7 @@
                     <div class="grid grid-cols-3 gap-4">
                         <div class="col-span-1">
                             <label class="block text-xs font-medium text-slate-400 mb-1">Número</label>
-                            <input type="number" id="form-numero" min="1" max="99" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none">
+                            <input type="text" inputmode="numeric" maxlength="3" pattern="[0-9]*" placeholder="Ex: 01, 10" id="form-numero" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none">
                         </div>
                         <div class="col-span-2">
                             <label class="block text-xs font-medium text-slate-400 mb-1">Nome nas Costas</label>
@@ -1095,6 +1092,41 @@
                 <div id="pagamento-preview" class="bg-slate-800/50 rounded-lg p-3 text-center">
                     <p class="text-xs text-slate-400">Saldo restante</p>
                     <p id="pagamento-restante" class="text-xl font-bold text-white">R$ 0,00</p>
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" class="modal-close flex-1 py-2.5 rounded-lg font-medium text-slate-300 hover:bg-slate-800 border border-slate-700 transition-colors">Cancelar</button>
+                    <button type="submit" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-lg font-medium transition-colors">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Editar Bolão -->
+    <div id="modal-bolao-edit" class="modal-overlay hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-sm shadow-2xl modal-content">
+            <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+                <h2 class="font-bold text-white text-lg flex items-center gap-2">🎯 Editar Palpite do Bolão</h2>
+                <button type="button" class="modal-close text-slate-400 hover:text-white transition-colors p-1">✕</button>
+            </div>
+            <form id="bolao-edit-form" class="p-6 space-y-4">
+                <input type="hidden" id="bolao-edit-id">
+                <div class="text-center mb-2">
+                    <p id="bolao-edit-nome" class="text-lg font-semibold text-white">Participante</p>
+                </div>
+                <div class="flex items-center justify-center gap-3">
+                    <div class="text-center">
+                        <p class="text-xs text-slate-400 mb-1">⚪ Solteiros</p>
+                        <input type="number" id="bolao-edit-solteiros" min="0" max="99" required class="w-16 bg-slate-950 border border-slate-700 rounded-lg py-2 text-center text-xl font-bold text-white focus:border-emerald-500 focus:outline-none">
+                    </div>
+                    <span class="text-2xl font-bold text-slate-500 mt-4">×</span>
+                    <div class="text-center">
+                        <p class="text-xs text-slate-400 mb-1">⚫ Casados</p>
+                        <input type="number" id="bolao-edit-casados" min="0" max="99" required class="w-16 bg-slate-950 border border-slate-700 rounded-lg py-2 text-center text-xl font-bold text-white focus:border-emerald-500 focus:outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Mensagem / Provocação</label>
+                    <input type="text" id="bolao-edit-mensagem" maxlength="100" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none">
                 </div>
                 <div class="flex gap-3 pt-2">
                     <button type="button" class="modal-close flex-1 py-2.5 rounded-lg font-medium text-slate-300 hover:bg-slate-800 border border-slate-700 transition-colors">Cancelar</button>
