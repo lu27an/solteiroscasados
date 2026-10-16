@@ -29,6 +29,84 @@ window.Financeiro = (function() {
                 if (window.App && window.App.state) render(window.App.state);
             });
         });
+
+        const btnZapFinanceiro = document.getElementById('btn-financeiro-whatsapp');
+        if (btnZapFinanceiro) {
+            btnZapFinanceiro.addEventListener('click', exportArrecadacaoWhatsapp);
+        }
+    }
+
+    function buildProgressBar(percent, blocks = 10) {
+        const clamped = Math.max(0, Math.min(100, Math.round(percent)));
+        const filled = Math.round((clamped / 100) * blocks);
+        const empty = Math.max(0, blocks - filled);
+        const pctStr = String(clamped).padStart(2, '0') + '%';
+        return `[${'🟩'.repeat(filled)}${'⬜'.repeat(empty)}] ${pctStr}`;
+    }
+
+    function gerarTextoArrecadacaoWhatsapp(state) {
+        const formatBRL = (val) => val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        const pagantes = (state.participantes || []).filter(p => parseFloat(p.valor_total || 0) > 0);
+
+        let totalEsperado = 0;
+        let totalArrecadado = 0;
+
+        const quitados = [];
+        const parciais = [];
+        const pendentes = [];
+
+        pagantes.forEach(p => {
+            const valor = parseFloat(p.valor_total || 0);
+            const pago = parseFloat(p.valor_pago || 0);
+            totalEsperado += valor;
+            totalArrecadado += pago;
+
+            const pctInd = valor > 0 ? Math.min(100, Math.round((pago / valor) * 100)) : 0;
+            const barInd = buildProgressBar(pctInd, 5);
+            const linha = `• *${p.nome}*: ${barInd} — ${formatBRL(pago)} / ${formatBRL(valor)}`;
+
+            if (pago >= valor && valor > 0) {
+                quitados.push(linha);
+            } else if (pago > 0) {
+                parciais.push(linha);
+            } else {
+                pendentes.push(linha);
+            }
+        });
+
+        const totalPendente = Math.max(0, totalEsperado - totalArrecadado);
+        const pctGeral = totalEsperado > 0 ? Math.min(100, (totalArrecadado / totalEsperado) * 100) : 0;
+        const barraGeral = buildProgressBar(pctGeral, 10);
+
+        let text = `🥩 *ARRECADAÇÃO DO CHURRASCO - SOLTEIROS & CASADOS 2026*\n\n`;
+        text += `📊 *Progresso Geral:*\n${barraGeral}\n\n`;
+        text += `💰 *Arrecadado:* ${formatBRL(totalArrecadado)} de ${formatBRL(totalEsperado)}\n`;
+        text += `⏳ *Falta Arrecadar:* ${formatBRL(totalPendente)}\n`;
+        text += `👥 *Participantes Pagantes:* ${pagantes.length}\n\n`;
+
+        text += `✅ *QUITADOS - 100% (${quitados.length}):*\n`;
+        text += quitados.length > 0 ? `${quitados.join('\n')}\n\n` : `(Nenhum ainda)\n\n`;
+
+        if (parciais.length > 0) {
+            text += `🟡 *PAGAMENTO PARCIAL (${parciais.length}):*\n${parciais.join('\n')}\n\n`;
+        }
+
+        if (pendentes.length > 0) {
+            text += `🔴 *PENDENTES - 00% (${pendentes.length}):*\n${pendentes.join('\n')}\n`;
+        }
+
+        return text.trim();
+    }
+
+    function exportArrecadacaoWhatsapp() {
+        if (!window.App || !window.App.state) return;
+        const text = gerarTextoArrecadacaoWhatsapp(window.App.state);
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(() => {
+                if (window.App) window.App.showToast('Resumo de arrecadação do churrasco copiado!');
+            });
+        }
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
     }
 
     function render(state) {
@@ -123,7 +201,7 @@ window.Financeiro = (function() {
                 <td class="text-right px-4 py-3">${pagoHtml}</td>
                 <td class="text-right px-4 py-3">${restanteHtml}</td>
                 <td class="text-center px-4 py-3">${statusHtml}</td>
-                <td class="text-center px-3 py-3 admin-only ${adminClass}">
+                <td class="text-center px-4 py-3 admin-only ${adminClass}">
                     <div class="flex gap-1 justify-center">
                         <button class="btn-edit" data-id="${p.id}" title="Editar">✏️</button>
                         <button class="btn-whatsapp" data-id="${p.id}" title="Cobrança WhatsApp">📱</button>
@@ -135,5 +213,5 @@ window.Financeiro = (function() {
         });
     }
 
-    return { init, render };
+    return { init, render, buildProgressBar, gerarTextoArrecadacaoWhatsapp, exportArrecadacaoWhatsapp };
 })();

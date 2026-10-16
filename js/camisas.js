@@ -41,6 +41,14 @@ window.Camisas = (function() {
         return (time === 'Casados' || time === 'Goleiro Casados') ? 60 : 75;
     }
 
+    function buildProgressBar(percent, blocks = 10) {
+        const clamped = Math.max(0, Math.min(100, Math.round(percent)));
+        const filled = Math.round((clamped / 100) * blocks);
+        const empty = Math.max(0, blocks - filled);
+        const pctStr = String(clamped).padStart(2, '0') + '%';
+        return `[${'🟩'.repeat(filled)}${'⬜'.repeat(empty)}] ${pctStr}`;
+    }
+
     function init() {
         const btnCsv = document.getElementById('btn-export-csv');
         if (btnCsv) {
@@ -50,13 +58,23 @@ window.Camisas = (function() {
         if (btnZap) {
             btnZap.addEventListener('click', exportWhatsapp);
         }
+        const btnZapPagamentos = document.getElementById('btn-camisas-whatsapp-pagamentos');
+        if (btnZapPagamentos) {
+            btnZapPagamentos.addEventListener('click', exportPagamentosWhatsapp);
+        }
 
-        // Click handler for camisa payment
+        // Click handler for camisa edit and payment
         const tbody = document.getElementById('camisas-tbody');
         if (tbody) {
             tbody.addEventListener('click', (e) => {
+                if (!window.App || !window.App.state || !window.App.state.isAdmin) return;
+                const editBtn = e.target.closest('.btn-edit-camisa');
+                if (editBtn) {
+                    window.App.editParticipante(parseInt(editBtn.dataset.id));
+                    return;
+                }
                 const btn = e.target.closest('.camisa-pago-btn');
-                if (btn && window.App && window.App.state && window.App.state.isAdmin) {
+                if (btn) {
                     window.App.openPagamento(parseInt(btn.dataset.id), 'camisa');
                 }
             });
@@ -276,6 +294,12 @@ window.Camisas = (function() {
                     <td class="text-right px-3 py-3 font-semibold admin-only ${adminClass}">${valorCamisa > 0 ? formatBRL(valorCamisa) : '-'}</td>
                     <td class="text-right px-3 py-3 admin-only ${adminClass}"><span class="${pagoClickClass} ${camisaPago > 0 ? 'text-emerald-400' : 'text-slate-500'} font-semibold" data-id="${p.id}">${valorCamisa > 0 ? formatBRL(camisaPago) : '-'}</span></td>
                     <td class="text-center px-3 py-3 admin-only ${adminClass}">${camisaStatus}</td>
+                    <td class="text-center px-3 py-3 admin-only ${adminClass}">
+                        <div class="flex gap-1.5 justify-center">
+                            <button class="btn-edit-camisa p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs transition-colors" data-id="${p.id}" title="Editar Camisa / Participante">✏️</button>
+                            ${valorCamisa > 0 ? `<button class="camisa-pago-btn p-1.5 rounded-lg bg-emerald-950/60 hover:bg-emerald-900/80 text-xs transition-colors" data-id="${p.id}" title="Atualizar Pagamento da Camisa">💰</button>` : ''}
+                        </div>
+                    </td>
                 </tr>
             `;
         });
@@ -351,10 +375,79 @@ window.Camisas = (function() {
         text += formatSection('⚫ *--- CAMISAS CASADOS ---*', groupsCasados);
         text += formatSection('🧤 *--- CAMISAS GOLEIRO CASADOS ---*', groupsGoleiroCasados);
 
-        navigator.clipboard.writeText(text).then(() => {
-            if (window.App) window.App.showToast('Resumo de confecção copiado para o WhatsApp!');
-        });
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(() => {
+                if (window.App) window.App.showToast('Resumo de confecção copiado para o WhatsApp!');
+            });
+        }
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
     }
 
-    return { init, render, calcularPrecoCamisa, getTimeCamisa, getModeloBase };
+    function gerarTextoPagamentosWhatsapp(state) {
+        const formatBRL = (val) => val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        const comCamisa = (state.participantes || []).filter(p => p.modelo_camisa && p.tam_camisa);
+
+        let totalEsperado = 0;
+        let totalArrecadado = 0;
+
+        const quitados = [];
+        const parciais = [];
+        const pendentes = [];
+
+        comCamisa.forEach(p => {
+            const valor = calcularPrecoCamisa(p.modelo_camisa, p.tam_camisa, p);
+            const pago = parseFloat(p.camisa_pago || 0);
+            totalEsperado += valor;
+            totalArrecadado += pago;
+
+            const pctInd = valor > 0 ? Math.min(100, Math.round((pago / valor) * 100)) : 0;
+            const barInd = buildProgressBar(pctInd, 5);
+            const time = getTimeCamisa(p);
+            const linha = `• *${p.nome}* (${time}): ${barInd} — ${formatBRL(pago)} / ${formatBRL(valor)}`;
+
+            if (pago >= valor && valor > 0) {
+                quitados.push(linha);
+            } else if (pago > 0) {
+                parciais.push(linha);
+            } else {
+                pendentes.push(linha);
+            }
+        });
+
+        const totalPendente = Math.max(0, totalEsperado - totalArrecadado);
+        const pctGeral = totalEsperado > 0 ? Math.min(100, (totalArrecadado / totalEsperado) * 100) : 0;
+        const barraGeral = buildProgressBar(pctGeral, 10);
+
+        let text = `👕 *ARRECADAÇÃO DAS CAMISAS - SOLTEIROS & CASADOS 2026*\n\n`;
+        text += `📊 *Progresso Geral:*\n${barraGeral}\n\n`;
+        text += `💰 *Arrecadado:* ${formatBRL(totalArrecadado)} de ${formatBRL(totalEsperado)}\n`;
+        text += `⏳ *Falta Arrecadar:* ${formatBRL(totalPendente)}\n`;
+        text += `👕 *Total de Camisas:* ${comCamisa.length} un.\n\n`;
+
+        text += `✅ *QUITADOS - 100% (${quitados.length}):*\n`;
+        text += quitados.length > 0 ? `${quitados.join('\n')}\n\n` : `(Nenhum ainda)\n\n`;
+
+        if (parciais.length > 0) {
+            text += `🟡 *PAGAMENTO PARCIAL (${parciais.length}):*\n${parciais.join('\n')}\n\n`;
+        }
+
+        if (pendentes.length > 0) {
+            text += `🔴 *PENDENTES - 00% (${pendentes.length}):*\n${pendentes.join('\n')}\n`;
+        }
+
+        return text.trim();
+    }
+
+    function exportPagamentosWhatsapp() {
+        if (!window.App || !window.App.state) return;
+        const text = gerarTextoPagamentosWhatsapp(window.App.state);
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(() => {
+                if (window.App) window.App.showToast('Resumo de arrecadação das camisas copiado!');
+            });
+        }
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+    }
+
+    return { init, render, calcularPrecoCamisa, getTimeCamisa, getModeloBase, buildProgressBar, gerarTextoPagamentosWhatsapp, exportPagamentosWhatsapp };
 })();
